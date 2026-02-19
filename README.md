@@ -34,8 +34,8 @@ The anchor tool. Generates documents with hidden payloads across 7 formats (PDF,
 # Generate payloads (all formats, all techniques)
 ipi-canary generate --callback http://your-server:8080 --output ./payloads/ --technique all --payload citation
 
-# Start listener
-ipi-canary listen --port 8080
+# Start listener (binds to localhost by default; use --host 0.0.0.0 for remote callbacks)
+ipi-canary listen --host 0.0.0.0 --port 8080
 
 # Check results
 ipi-canary status
