@@ -60,7 +60,7 @@ Completely unoccupied niche — academic research catalogs 42+ attack techniques
 
 ## Phase 2.5: RAG Retrieval Poisoning Optimizer — `Drongo` (Planned)
 
-Solves the retrieval prerequisite that IPI-Canary assumes: how to guarantee poisoned content actually gets retrieved into the LLM's context window. Named after the fork-tailed drongo — an African bird that mimics alarm calls to manipulate other species' behavior and steal their food. Drongo generates documents optimized to win vector similarity battles in RAG systems.
+Extends IPI-Canary into contested retrieval scenarios: IPI-Canary proves execution once content is retrieved; Drongo tests whether poisoned content can win the vector similarity battle against legitimate documents to reach the LLM's context window. Named after the fork-tailed drongo — an African bird that mimics alarm calls to manipulate other species' behavior and steal their food. Drongo generates documents optimized to win vector similarity battles in RAG systems.
 
 - Generate text optimized for high cosine similarity with likely user queries across common embedding models
 - Wrap optimized text + injection payload into document formats (PDF, DOCX, TXT, HTML)

@@ -97,7 +97,7 @@ AI coding assistants treat project-level instruction files as trusted context. T
 ## Phase 2.5: RAG Retrieval Poisoning Optimizer — `Drongo`
 
 ### Concept
-IPI-Canary tests whether injected content triggers when retrieved. It assumes the payload is already in the LLM's context window. Drongo solves the prerequisite: how to guarantee that poisoned content wins the vector similarity battle and actually gets retrieved. Named after the fork-tailed drongo — an African bird that mimics alarm calls to manipulate other species into abandoning their food — the tool manipulates retrieval trust signals so poisoned content gets served as legitimate. This is the missing first half of the RAG attack chain.
+IPI-Canary tests whether injected content triggers when retrieved. It works well for controlled knowledge base testing where retrieval is guaranteed by the test setup. Drongo extends this to contested retrieval scenarios — where poisoned content sits alongside legitimate documents and must win the vector similarity battle to reach the LLM's context window. Named after the fork-tailed drongo — an African bird that mimics alarm calls to manipulate other species into abandoning their food — the tool manipulates retrieval trust signals so poisoned content gets served as legitimate.
 
 ### Core Capabilities
 - Given a target query domain (e.g., "HR policy," "quarterly report"), generate text optimized for high cosine similarity with likely user queries across common embedding models
