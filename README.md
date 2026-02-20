@@ -16,7 +16,7 @@ The program produces three tools in phases, each targeting a different content-b
 
 | Tool | Phase | Focus | Status |
 |------|-------|-------|--------|
-| [**IPI-Canary**](https://github.com/richardspicer/IPI-Canary) | 1 | Indirect prompt injection via document ingestion — proof-of-execution callback tracking | 🟡 Pre-release |
+| [**IPI-Canary**](https://github.com/richardspicer/IPI-Canary) | 1 | Indirect prompt injection via document ingestion — proof-of-execution callback tracking | 🟢 v0.1.0 |
 | **CXP-Canary** | 1.5 | Coding assistant context poisoning — test whether project instruction files cause vulnerable code generation | 📋 Planned |
 | **Drongo** | 2.5 | RAG retrieval poisoning optimizer — generate documents that win vector similarity battles to guarantee payload retrieval | 📋 Planned |
 

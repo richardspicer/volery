@@ -187,7 +187,8 @@ Integration could be: Drongo as a module within IPI-Canary, or separate repo wit
 - ✅ 12 confirmed real-world callbacks
 - ✅ Multi-model, multi-provider testing (18 models)
 - ✅ Published finding: parser regression
-- Pending: pre-release security review, multi-platform testing
+- ✅ Pre-release security review complete (bandit, semgrep, pip-audit, manual review, dynamic testing)
+- Pending: multi-platform testing
 
 ### Phase 1.5 Success (CXP-Canary)
 - Poisoned context files cause at least one major coding assistant to produce vulnerable code
@@ -212,7 +213,7 @@ Integration could be: Drongo as a module within IPI-Canary, or separate repo wit
 ```
 Phase 1 (Active)
   IPI-Canary ── indirect prompt injection detection
-  └── Pre-release security review pending
+  └── v0.1.0 released, multi-platform testing ongoing
 
 Phase 1.5 (Next)
   CXP-Canary ── coding assistant context poisoning
