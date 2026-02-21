@@ -2,6 +2,8 @@
 
 **Open source offensive security suite for testing content and supply chain attacks against AI agents.**
 
+> **Status:** IPI-Canary is the first released tool. CXP-Canary (Phase 1.5) and Drongo (Phase 2.5) are planned.
+
 A flock of birds — sentinel tools (canaries) that detect agent compromise via out-of-band callback, and ecological attack tools that simulate invasive behaviors in AI knowledge systems. Covers indirect prompt injection, coding assistant context poisoning, and RAG retrieval poisoning.
 
 > Research program by [Richard Spicer](https://richardspicer.io) · [GitHub](https://github.com/richardspicer)
