@@ -32,6 +32,7 @@ May be implemented as a standalone repo (`richardspicer/Drongo`) or as a module 
 - **Multi-model testing is required.** Different RAG systems use different embedding models. Text optimized for `all-MiniLM-L6-v2` may not rank well against `text-embedding-3-small`. The tool must test across models, not assume one.
 - **Adversarial text must remain plausible.** Pure embedding-space optimization can produce gibberish that ranks well but gets filtered by preprocessing. Generated text must read as legitimate content — a document that a human or automated filter wouldn't reject.
 - **Output format must be compatible with IPI-Canary's input.** The integration path is Drongo output → IPI-Canary generator input. Define a shared interface (file or data model) before building.
+- **Cross-platform** — must run on Windows, macOS, and Linux. No platform-specific shell commands in source or test fixtures.
 
 ## Open Questions
 
