@@ -12,11 +12,11 @@ CounterSignal consolidates three content-layer security testing tools into a sin
 
 ### IPI — Indirect Prompt Injection
 
-Generate documents with hidden payloads across multiple formats (PDF, Image, Markdown, HTML, DOCX, ICS, EML) and track execution via authenticated callbacks. Tests whether AI agents execute injected instructions when ingesting documents.
+Generate documents with hidden payloads — 34 hiding techniques across 7 formats (PDF, Image, Markdown, HTML, DOCX, ICS, EML) — and track execution via authenticated callbacks. Tests whether AI agents execute injected instructions when ingesting documents.
 
 ### CXP — Context File Poisoning
 
-Test whether poisoned project-level instruction files (CLAUDE.md, .cursorrules, copilot-instructions.md, etc.) cause AI coding assistants to produce vulnerable code, exfiltrate data, or execute commands.
+Test whether poisoned project-level instruction files cause AI coding assistants to produce vulnerable code, exfiltrate data, or execute commands. 2 attack objectives (backdoor, exfil) across 3 assistant formats (CLAUDE.md, .cursorrules, copilot-instructions.md).
 
 ### RXP — RAG Retrieval Poisoning *(planned)*
 
@@ -42,6 +42,63 @@ countersignal rxp --help
 ```
 
 > CounterSignal is not yet published to PyPI. Install from source for now.
+
+---
+
+## Usage Examples
+
+### IPI — Generate payloads and track execution
+
+```bash
+# Generate payload documents for all techniques
+countersignal ipi generate --callback http://localhost:8080 --technique all
+
+# Start the callback listener with web dashboard
+countersignal ipi listen --port 8080
+
+# Check campaign status and hits
+countersignal ipi status
+
+# List available hiding techniques and formats
+countersignal ipi techniques
+countersignal ipi formats
+
+# Export campaign data to JSON
+countersignal ipi export
+```
+
+### CXP — Test coding assistant context poisoning
+
+```bash
+# List available objectives and formats
+countersignal cxp objectives
+countersignal cxp formats
+countersignal cxp techniques
+
+# Generate poisoned test repositories
+countersignal cxp generate --objective backdoor --format claude_md
+
+# Record a test result into the evidence store
+countersignal cxp record --technique backdoor-claude_md --assistant "Claude Code" \
+    --trigger-prompt "Write a login handler" --file output.py
+
+# Validate captured output against detection rules
+countersignal cxp validate --result <result-id>
+
+# Generate comparison matrix
+countersignal cxp report matrix --format markdown
+```
+
+---
+
+## Development
+
+```bash
+uv run pytest -q              # Run tests
+uv run ruff check .           # Lint
+uv run ruff format --check .  # Format check
+uv run mypy src/countersignal/ # Type check
+```
 
 ---
 
