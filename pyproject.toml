@@ -1,0 +1,107 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "countersignal"
+version = "0.1.0"
+description = "Agentic AI content & supply chain attack toolkit — indirect prompt injection, context poisoning, and retrieval poisoning"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+authors = [
+    { name = "Richard Spicer", email = "richard@richardspicer.io" },
+]
+keywords = ["security", "ai-security", "prompt-injection", "red-team", "rag-poisoning", "context-poisoning"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+    "Topic :: Software Development :: Testing",
+    "Typing :: Typed",
+]
+dependencies = [
+    # CLI & display
+    "typer>=0.24.0",
+    "rich>=13.0.0",
+    # Web listener (IPI dashboard + shared callback server)
+    "fastapi>=0.133.0",
+    "uvicorn>=0.34.0",
+    "python-multipart>=0.0.20",
+    "jinja2>=3.1.0",
+    # Models & validation
+    "pydantic>=2.11.0",
+    "requests>=2.32.0",
+    # IPI document generators
+    "reportlab>=4.4.0",
+    "pypdf>=5.0.0",
+    "piexif>=1.1.3",
+    "python-docx>=1.2.0",
+    "icalendar>=6.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.9.0",
+    "pre-commit>=4.3.0",
+    "mypy>=1.15.0",
+]
+
+[project.scripts]
+countersignal = "countersignal.cli:app"
+
+[project.urls]
+Homepage = "https://richardspicer.io"
+Repository = "https://github.com/richardspicer/countersignal"
+Issues = "https://github.com/richardspicer/countersignal/issues"
+Documentation = "https://github.com/richardspicer/countersignal/tree/main/docs"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/countersignal"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "B", "C90", "UP", "S"]
+ignore = ["S101", "S104", "S311"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 15
+
+[tool.ruff.lint.per-file-ignores]
+"harness/*" = ["S", "E501", "C901"]
+"scripts/*" = ["S", "E501"]
+"tests/*" = ["S"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+check_untyped_defs = true
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "harness.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "scripts.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+ignore_errors = true

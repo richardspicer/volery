@@ -1,4 +1,4 @@
-# Drongo
+# RXP
 
 > RAG retrieval poisoning optimizer — guarantee your payloads get retrieved.
 
@@ -8,13 +8,13 @@ IPI-Canary tests whether injected content triggers agent action when it reaches 
 
 ## Program Context
 
-Phase 2.5 in the Volery program. Sits between IPI-Canary (which handles payload wrapping and callback tracking) and the target RAG system. The natural integration:
+Phase 2.5 in the CounterSignal program. Sits between IPI-Canary (which handles payload wrapping and callback tracking) and the target RAG system. The natural integration:
 
 1. Drongo generates retrieval-optimized text for a target query domain
 2. IPI-Canary wraps it with callback payloads using chosen hiding techniques
 3. Combined documents test whether the RAG system retrieves AND executes
 
-May be implemented as a standalone repo (`richardspicer/Drongo`) or as a module within IPI-Canary. Standalone has more research visibility; module has tighter integration. Decision deferred until development begins.
+Implemented as the rxp module within the countersignal monorepo.
 
 ## Core Capabilities
 

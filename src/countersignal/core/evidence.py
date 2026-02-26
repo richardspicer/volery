@@ -1,0 +1,1 @@
+"""Shared evidence collection patterns."""

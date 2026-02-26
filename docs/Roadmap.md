@@ -4,7 +4,7 @@ An offensive security suite for content and supply chain attacks against AI agen
 ---
 ## Ecosystem Context
 
-Volery is the **content & supply chain** arm of the Agentic AI Security ecosystem under [richardspicer.io](https://richardspicer.io). It tests what happens when AI agents ingest documents, parse project instruction files, or retrieve poisoned content from vector databases.
+CounterSignal is the **content & supply chain** arm of the Agentic AI Security ecosystem under [richardspicer.io](https://richardspicer.io). It tests what happens when AI agents ingest documents, parse project instruction files, or retrieve poisoned content from vector databases.
 
 The **CounterAgent** program (mcp-audit, mcp-proxy, agent-inject, agent-chain) is the sister program handling **protocol & system** security — MCP servers, tool trust boundaries, and agent delegation chains.
 

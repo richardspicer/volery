@@ -8,7 +8,7 @@ What this tool does and why it exists. One paragraph. Focus on the gap it fills 
 
 ## Program Context
 
-How this tool connects to the Volery program. What feeds into it, what it produces, and where it sits in the attack chain.
+How this tool connects to the CounterSignal program. What feeds into it, what it produces, and where it sits in the attack chain.
 
 ## Core Capabilities
 
