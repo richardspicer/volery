@@ -1,6 +1,6 @@
 """PDF payload generator with hidden prompt injection techniques.
 
-This module implements all PDF-specific hiding techniques for IPI-Canary:
+This module implements all PDF-specific hiding techniques for CounterSignal IPI:
 - Phase 1: white_ink, off_canvas, metadata
 - Phase 2: tiny_text, white_rect, form_field, annotation, javascript,
            embedded_file, incremental

@@ -212,7 +212,7 @@ def _inject_exif_metadata(output_path: Path, payload: str) -> None:
             piexif.ImageIFD.ImageDescription: payload_bytes,
             piexif.ImageIFD.Artist: payload_bytes,
             piexif.ImageIFD.Copyright: payload_bytes,
-            piexif.ImageIFD.Software: b"IPI-Canary",
+            piexif.ImageIFD.Software: b"CounterSignal",
         },
         "Exif": {
             # UserComment requires specific encoding format: charset code (8 bytes) + content

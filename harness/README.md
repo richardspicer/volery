@@ -1,10 +1,10 @@
-# IPI-Canary Test Harness
+# CounterSignal IPI Test Harness
 
-A deliberately vulnerable AI agent for validating IPI-Canary payloads.
+A deliberately vulnerable AI agent for validating CounterSignal IPI payloads.
 
 ## Purpose
 
-This harness isolates **tool validation** from **target testing**. It's designed to be exploitable - if IPI-Canary can't trigger a callback from this harness, the problem is with the tool, not the target.
+This harness isolates **tool validation** from **target testing**. It's designed to be exploitable - if CounterSignal IPI can't trigger a callback from this harness, the problem is with the tool, not the target.
 
 ## Supported Formats
 
@@ -43,7 +43,7 @@ Verbose logging
 
 ## Requirements
 
-Uses the same venv as IPI-Canary.
+Uses the same venv as CounterSignal.
 
 ### Core Dependencies (required)
 ```bash
@@ -67,38 +67,38 @@ pip install pytesseract
 
 ```powershell
 # Terminal 1 - Start listener
-cd IPI-Canary
-ipi-canary listen --host 0.0.0.0 --port 8080
+cd countersignal
+countersignal ipi listen --host 0.0.0.0 --port 8080
 
 # Terminal 2 - Generate and test (outputs to ./payloads/ by default)
-cd IPI-Canary
+cd countersignal
 
 # PDF test
-ipi-canary generate -c http://localhost:8080 --technique white_ink
+countersignal ipi generate -c http://localhost:8080 --technique white_ink
 python harness/harness.py ./payloads/report_white_ink.pdf
 
 # Image test
-ipi-canary generate -c http://localhost:8080 --format image --technique visible_text
+countersignal ipi generate -c http://localhost:8080 --format image --technique visible_text
 python harness/harness.py ./payloads/image_visible_text.png
 
 # Markdown test
-ipi-canary generate -c http://localhost:8080 --format markdown --technique html_comment
+countersignal ipi generate -c http://localhost:8080 --format markdown --technique html_comment
 python harness/harness.py ./payloads/document_html_comment.md
 
 # HTML test
-ipi-canary generate -c http://localhost:8080 --format html --technique css_offscreen
+countersignal ipi generate -c http://localhost:8080 --format html --technique css_offscreen
 python harness/harness.py ./payloads/report_css_offscreen.html
 
 # DOCX test
-ipi-canary generate -c http://localhost:8080 --format docx --technique docx_hidden_text
+countersignal ipi generate -c http://localhost:8080 --format docx --technique docx_hidden_text
 python harness/harness.py ./payloads/report_docx_hidden_text.docx
 
 # ICS test
-ipi-canary generate -c http://localhost:8080 --format ics --technique ics_description
+countersignal ipi generate -c http://localhost:8080 --format ics --technique ics_description
 python harness/harness.py ./payloads/event_ics_description.ics
 
 # EML test
-ipi-canary generate -c http://localhost:8080 --format eml --technique eml_x_header
+countersignal ipi generate -c http://localhost:8080 --format eml --technique eml_x_header
 python harness/harness.py ./payloads/message_eml_x_header.eml
 ```
 
@@ -144,12 +144,12 @@ Phase 4 payload types test attack objectives beyond simple callbacks. These requ
 
 ```powershell
 # Generate dangerous payloads (one technique, each type)
-ipi-canary generate -c http://localhost:8080 --technique white_ink --payload-type exfil_summary --dangerous
-ipi-canary generate -c http://localhost:8080 --technique white_ink --payload-type exfil_context --dangerous
-ipi-canary generate -c http://localhost:8080 --technique white_ink --payload-type ssrf_internal --dangerous
-ipi-canary generate -c http://localhost:8080 --technique white_ink --payload-type instruction_override --dangerous
-ipi-canary generate -c http://localhost:8080 --technique white_ink --payload-type tool_abuse --dangerous
-ipi-canary generate -c http://localhost:8080 --technique white_ink --payload-type persistence --dangerous
+countersignal ipi generate -c http://localhost:8080 --technique white_ink --payload-type exfil_summary --dangerous
+countersignal ipi generate -c http://localhost:8080 --technique white_ink --payload-type exfil_context --dangerous
+countersignal ipi generate -c http://localhost:8080 --technique white_ink --payload-type ssrf_internal --dangerous
+countersignal ipi generate -c http://localhost:8080 --technique white_ink --payload-type instruction_override --dangerous
+countersignal ipi generate -c http://localhost:8080 --technique white_ink --payload-type tool_abuse --dangerous
+countersignal ipi generate -c http://localhost:8080 --technique white_ink --payload-type persistence --dangerous
 
 # Run through harness
 foreach ($f in Get-ChildItem ./payloads/report_*.pdf) { python harness/harness.py $f }
@@ -268,5 +268,5 @@ All 10 PDF techniques are supported and extract from their respective locations 
 1. **No guardrails** - Executes every tool call without validation
 2. **Verbose logging** - Shows exactly what was extracted, sent, and executed
 3. **Same parsers as real targets** - Uses pypdf, pytesseract like many production systems
-4. **Multi-format support** - Tests all IPI-Canary output formats
+4. **Multi-format support** - Tests all CounterSignal IPI output formats
 5. **Configurable** - Easy to test different models and endpoints

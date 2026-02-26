@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-IPI-Canary Test Harness
+CounterSignal IPI Test Harness
 
-A deliberately vulnerable AI agent for validating IPI-Canary payloads.
+A deliberately vulnerable AI agent for validating CounterSignal IPI payloads.
 This harness has NO guardrails - it executes every tool call the LLM makes.
 
 Supported formats:
@@ -1109,7 +1109,7 @@ def process_response(response: dict) -> None:
 def main():
     """Main entry point for the test harness."""
     parser = argparse.ArgumentParser(
-        description="IPI-Canary Test Harness - Deliberately vulnerable AI agent",
+        description="CounterSignal IPI Test Harness - Deliberately vulnerable AI agent",
         epilog="Supported formats: PDF, Image (PNG/JPG), Markdown, HTML, DOCX, ICS, EML",
     )
     parser.add_argument("file", type=Path, help="Path to file to process")
@@ -1139,7 +1139,7 @@ def main():
         sys.exit(1)
 
     print("=" * 60)
-    print("IPI-Canary Test Harness")
+    print("CounterSignal IPI Test Harness")
     print("WARNING: This harness has NO guardrails - for testing only!")
     print(f"Format: {file_format.upper()}")
     print("=" * 60)
