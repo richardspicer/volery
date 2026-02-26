@@ -1,6 +1,6 @@
 # countersignal
 
-Agentic AI content & supply chain attack toolkit. Monorepo consolidating IPI-Canary, CXP-Canary, and future RXP into one Python package with a unified CLI. CounterSignal is the content & supply chain arm of the Agentic AI Security ecosystem. The sister program CounterAgent handles protocol & system security (MCP auditing, traffic interception).
+Agentic AI content & supply chain attack toolkit. Monorepo with IPI, CXP, and RXP modules in one Python package with a unified CLI. CounterSignal is the content & supply chain arm of the Agentic AI Security ecosystem. The sister program CounterAgent handles protocol & system security (MCP auditing, traffic interception).
 
 ## Project Layout
 
@@ -10,19 +10,24 @@ src/countersignal/
 ├── __main__.py               # python -m countersignal support
 ├── cli.py                    # Root Typer app — mounts ipi, cxp, rxp
 ├── core/                     # Shared infrastructure: callback tracking, storage, evidence
-│   ├── models.py             # Shared data models for callback tracking
-│   ├── listener.py           # Callback listener server
-│   ├── db.py                 # Campaign and hit storage
-│   └── evidence.py           # Shared evidence collection patterns
-├── ipi/                      # Indirect prompt injection (from IPI-Canary)
+│   ├── models.py             # Campaign, Hit, HitConfidence (Pydantic)
+│   ├── listener.py           # Callback confidence scoring
+│   ├── db.py                 # SQLite campaign/hit storage (~/.countersignal/ipi.db)
+│   └── evidence.py           # Shared evidence collection patterns (stub)
+├── ipi/                      # Indirect prompt injection
 │   └── cli.py                # ipi subcommand CLI
-├── cxp/                      # Context file poisoning (from CXP-Canary)
+├── cxp/                      # Context file poisoning
 │   └── cli.py                # cxp subcommand CLI
 └── rxp/                      # RAG retrieval poisoning [planned]
     └── cli.py                # rxp subcommand CLI
 tests/                        # Test suite mirroring src/ structure
-harness/                      # Live test harnesses (IPI arrives Phase C)
+harness/                      # Live test harnesses
 ```
+
+## Database Locations
+
+- IPI: `~/.countersignal/ipi.db` (shared core/db.py)
+- CXP: `~/.countersignal/cxp.db` (cxp/evidence.py)
 
 ## Code Standards
 
