@@ -41,6 +41,29 @@ Pre-commit hooks enforce linting, formatting, type checking, and secrets detecti
 - Framework: pytest
 - Test files mirror source structure under `tests/`
 
+## Test Structure
+
+Tests mirror the source layout:
+
+```
+tests/
+├── conftest.py          # Shared fixtures
+├── core/                # Core module tests
+├── ipi/                 # IPI module tests
+│   ├── test_db_init.py
+│   ├── test_path_traversal.py
+│   └── test_server_defaults.py
+└── cxp/                 # CXP module tests (13 test files)
+```
+
+Run module-specific tests:
+```bash
+uv run pytest tests/ipi/ -v    # IPI tests only
+uv run pytest tests/cxp/ -v    # CXP tests only
+```
+
+A 60-second timeout (pytest-timeout) is configured globally. If a test hangs, diagnose instead of increasing the timeout.
+
 ## License
 
 By contributing, you agree that your contributions will be licensed under MIT.
