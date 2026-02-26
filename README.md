@@ -32,7 +32,7 @@ Generate documents optimized to win vector similarity battles in RAG systems, gu
 **Development install:**
 
 ```bash
-git clone https://github.com/richardspicer/countersignal.git
+git clone https://github.com/q-uestionable-AI/countersignal.git
 cd countersignal
 uv sync --group dev
 ```
@@ -107,7 +107,7 @@ uv run mypy src/countersignal/ # Type check
 
 ## Sister Project
 
-**[CounterAgent](https://github.com/richardspicer/counteragent)** — the protocol & system security arm of the Agentic AI Security ecosystem. MCP server auditing, traffic interception, and agent attack chain testing.
+**[CounterAgent](https://github.com/q-uestionable-AI/counteragent)** — the protocol & system security arm of the Agentic AI Security ecosystem. MCP server auditing, traffic interception, and agent attack chain testing.
 
 ## Framework Mapping
 

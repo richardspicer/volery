@@ -3,7 +3,7 @@
 ## Development Setup
 
 ```bash
-git clone https://github.com/richardspicer/countersignal.git
+git clone https://github.com/q-uestionable-AI/countersignal.git
 cd countersignal
 uv sync --group dev
 uv run pre-commit install

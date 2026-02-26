@@ -407,9 +407,9 @@ countersignal = "countersignal.cli:app"
 
 [project.urls]
 Homepage = "https://richardspicer.io"
-Repository = "https://github.com/richardspicer/countersignal"
-Issues = "https://github.com/richardspicer/countersignal/issues"
-Documentation = "https://github.com/richardspicer/countersignal/tree/main/docs"
+Repository = "https://github.com/q-uestionable-AI/countersignal"
+Issues = "https://github.com/q-uestionable-AI/countersignal/issues"
+Documentation = "https://github.com/q-uestionable-AI/countersignal/tree/main/docs"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/countersignal"]
@@ -848,7 +848,7 @@ CounterSignal is a security testing tool. Vulnerabilities in the tool itself (no
 ## Development Setup
 
 ```bash
-git clone https://github.com/richardspicer/countersignal.git
+git clone https://github.com/q-uestionable-AI/countersignal.git
 cd countersignal
 uv sync --group dev
 uv run pre-commit install
@@ -1121,7 +1121,7 @@ Generate documents optimized to win vector similarity battles in RAG systems, gu
 **Development install:**
 
 ```bash
-git clone https://github.com/richardspicer/countersignal.git
+git clone https://github.com/q-uestionable-AI/countersignal.git
 cd countersignal
 uv sync --group dev
 ```
@@ -1139,7 +1139,7 @@ countersignal rxp --help
 
 ## Sister Project
 
-**[CounterAgent](https://github.com/richardspicer/counteragent)** — the protocol & system security arm of the Agentic AI Security ecosystem. MCP server auditing, traffic interception, and agent attack chain testing.
+**[CounterAgent](https://github.com/q-uestionable-AI/counteragent)** — the protocol & system security arm of the Agentic AI Security ecosystem. MCP server auditing, traffic interception, and agent attack chain testing.
 
 ## Framework Mapping
 

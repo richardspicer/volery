@@ -61,9 +61,9 @@ countersignal = "countersignal.cli:app"
 
 [project.urls]
 Homepage = "https://richardspicer.io"
-Repository = "https://github.com/richardspicer/countersignal"
-Issues = "https://github.com/richardspicer/countersignal/issues"
-Documentation = "https://github.com/richardspicer/countersignal/tree/main/docs"
+Repository = "https://github.com/q-uestionable-AI/countersignal"
+Issues = "https://github.com/q-uestionable-AI/countersignal/issues"
+Documentation = "https://github.com/q-uestionable-AI/countersignal/tree/main/docs"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/countersignal"]
