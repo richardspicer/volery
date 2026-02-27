@@ -132,6 +132,11 @@ RXP and IPI are sibling modules in the countersignal monorepo with shared core i
 - `semgrep` — custom rules for project patterns
 - Run in CI on every PR
 
+### CI Testing Matrix
+- Cross-platform: `ubuntu-latest` + `windows-latest`
+- Python versions: `["3.11", "3.13", "3.14"]` — floor, near-ceiling, and forward-compatibility
+- `requires-python = ">=3.11"` means the floor must always be tested
+
 ### Dependency Scanning
 - `pip-audit` — check against PyPI advisory database
 - GitHub Dependabot for ongoing monitoring
