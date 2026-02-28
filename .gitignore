@@ -40,4 +40,6 @@ Thumbs.db
 .commitmsg
 scripts/preflight.py
 
-.claude/settings.local.json
+# Claude Code
+.claude/
+CLAUDE.md
