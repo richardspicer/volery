@@ -114,7 +114,7 @@ Natural pairing forming the full RAG attack chain:
 
 RXP and IPI are sibling modules in the countersignal monorepo with shared core infrastructure.
 
-### Integration with Mutual Dissent
+### Integration with [Mutual Dissent](https://github.com/q-uestionable-AI/mutual-dissent)
 RXP's output — retrieval-optimized poison documents — is the input to Mutual
 Dissent's per-panelist context injection. The experimental pipeline:
 1. RXP generates retrieval-optimized poison for a target domain
@@ -126,7 +126,7 @@ This enables measuring whether cross-model reflection amplifies or attenuates
 RAG poisoning — a novel research question that neither tool can answer alone.
 RXP's retrieval rank metrics and Mutual Dissent's per-round experiment metadata
 must use compatible formats. Define the interface contract during RXP scoping
-even while it's a stub. See `Lab/Cross-Tool Research Directions.md`.
+even while it's a stub.
 
 ### Deliverables
 - Retrieval-optimized poison documents
