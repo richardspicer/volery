@@ -19,8 +19,8 @@ class EmbeddingModelConfig:
 
     id: str
     name: str
-    dimensions: int
-    description: str
+    dimensions: int | None = None
+    description: str = ""
 
 
 @dataclass

@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 from typer.testing import CliRunner
@@ -43,10 +44,15 @@ class TestCLI:
         assert "model" in result.output
         assert "top" in result.output
 
-    def test_validate_unknown_model(self) -> None:
-        result = runner.invoke(app, ["validate", "--profile", "hr-policy", "--model", "fake"])
-        assert result.exit_code == 1
-        assert "Unknown model" in result.output
+    def test_validate_arbitrary_model_accepted(self) -> None:
+        with patch(
+            "countersignal.rxp.validator.validate_retrieval",
+            side_effect=RuntimeError("mock"),
+        ):
+            result = runner.invoke(
+                app, ["validate", "--profile", "hr-policy", "--model", "BAAI/bge-m3"]
+            )
+        assert "Unknown model" not in result.output
 
     def test_validate_unknown_profile(self) -> None:
         result = runner.invoke(app, ["validate", "--profile", "fake-profile"])

@@ -34,3 +34,19 @@ def list_models() -> list[EmbeddingModelConfig]:
 def get_model(model_id: str) -> EmbeddingModelConfig | None:
     """Get a model config by ID. Returns None if not found."""
     return _MODELS.get(model_id)
+
+
+def resolve_model(model_id: str) -> EmbeddingModelConfig:
+    """Resolve a model ID to config: registry shortcut first, then ad-hoc HuggingFace name.
+
+    Args:
+        model_id: Registry shortcut (e.g. "minilm-l6") or HuggingFace model name
+            (e.g. "BAAI/bge-m3").
+
+    Returns:
+        EmbeddingModelConfig from the registry, or an ad-hoc config for arbitrary model names.
+    """
+    registered = _MODELS.get(model_id)
+    if registered is not None:
+        return registered
+    return EmbeddingModelConfig(id=model_id, name=model_id)

@@ -9,7 +9,7 @@ from countersignal.rxp.models import (
     QueryResult,
     ValidationResult,
 )
-from countersignal.rxp.registry import get_model
+from countersignal.rxp.registry import resolve_model
 
 
 def validate_retrieval(
@@ -28,18 +28,13 @@ def validate_retrieval(
         corpus_docs: Legitimate corpus documents.
         poison_docs: Adversarial documents (is_poison=True).
         queries: Target queries to test retrieval against.
-        model_id: Embedding model registry ID.
+        model_id: Embedding model registry ID or HuggingFace model name.
         top_k: Number of retrieval results per query.
 
     Returns:
         ValidationResult with per-query detail and aggregate stats.
-
-    Raises:
-        KeyError: If model_id is not in the registry.
     """
-    model_config = get_model(model_id)
-    if model_config is None:
-        raise KeyError(f"Unknown model: {model_id}")
+    model_config = resolve_model(model_id)
 
     embedder = get_embedder(model_config.name)
     collection = RetrievalCollection(name=f"rxp-validate-{model_id}", embedder=embedder)

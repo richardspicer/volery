@@ -12,7 +12,7 @@ from rich.table import Table
 
 from countersignal.rxp.models import CorpusDocument, ValidationResult
 from countersignal.rxp.profiles import get_profile, list_profiles, load_corpus, load_poison
-from countersignal.rxp.registry import get_model, list_models
+from countersignal.rxp.registry import list_models, resolve_model
 
 app = typer.Typer(no_args_is_help=True)
 console = Console()
@@ -28,8 +28,6 @@ def _resolve_model_ids(model: str) -> list[str]:
     """Resolve model option to list of model IDs."""
     if model == "all":
         return [m.id for m in list_models()]
-    if get_model(model) is None:
-        _error(f"Unknown model: {model}")
     return [model]
 
 
@@ -121,7 +119,8 @@ def list_models_cmd() -> None:
     table.add_column("Dimensions", justify="right")
     table.add_column("Description")
     for m in models:
-        table.add_row(m.id, m.name, str(m.dimensions), m.description)
+        dims = str(m.dimensions) if m.dimensions is not None else "\u2014"
+        table.add_row(m.id, m.name, dims, m.description)
     console.print(table)
 
 
@@ -159,7 +158,7 @@ def validate(
     ] = None,
     model: Annotated[
         str,
-        typer.Option(help="Embedding model ID, or 'all' for all models."),
+        typer.Option(help="Embedding model: registry shortcut, 'all', or HuggingFace model name."),
     ] = "minilm-l6",
     top_k: Annotated[
         int,
@@ -189,8 +188,7 @@ def validate(
 
     all_results: list[ValidationResult] = []
     for model_id in model_ids:
-        model_config = get_model(model_id)
-        assert model_config is not None
+        model_config = resolve_model(model_id)
         typer.echo(f"Loading model: {model_config.name}...")
         typer.echo(
             f"Ingesting corpus: {len(corpus_docs)} documents + "

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from countersignal.rxp.models import EmbeddingModelConfig
-from countersignal.rxp.registry import get_model, list_models
+from countersignal.rxp.registry import get_model, list_models, resolve_model
 
 
 class TestRegistry:
@@ -32,3 +32,16 @@ class TestRegistry:
 
     def test_get_unknown_returns_none(self) -> None:
         assert get_model("nonexistent-model") is None
+
+    def test_resolve_registry_model(self) -> None:
+        m = resolve_model("minilm-l6")
+        assert m.id == "minilm-l6"
+        assert m.name == "sentence-transformers/all-MiniLM-L6-v2"
+        assert m.dimensions == 384
+
+    def test_resolve_arbitrary_hf_name(self) -> None:
+        m = resolve_model("BAAI/bge-m3")
+        assert m.id == "BAAI/bge-m3"
+        assert m.name == "BAAI/bge-m3"
+        assert m.dimensions is None
+        assert m.description == ""

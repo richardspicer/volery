@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import pytest
 
+from countersignal.rxp.registry import resolve_model
+
 pytest.importorskip("sentence_transformers")
 pytest.importorskip("chromadb")
 
@@ -69,16 +71,11 @@ class TestValidator:
             assert result.mean_poison_rank is not None
             assert result.mean_poison_rank >= 1.0
 
-    def test_validate_unknown_model_raises(
-        self, corpus: list[CorpusDocument], poison: list[CorpusDocument]
-    ) -> None:
-        with pytest.raises(KeyError, match="Unknown model"):
-            validate_retrieval(
-                corpus_docs=corpus,
-                poison_docs=poison,
-                queries=["test"],
-                model_id="nonexistent-model",
-            )
+    def test_validate_adhoc_model_resolves(self) -> None:
+        m = resolve_model("some-org/some-model")
+        assert m.id == "some-org/some-model"
+        assert m.name == "some-org/some-model"
+        assert m.dimensions is None
 
     def test_validate_empty_queries(
         self, corpus: list[CorpusDocument], poison: list[CorpusDocument]
