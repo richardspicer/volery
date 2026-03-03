@@ -7,9 +7,9 @@ from countersignal.cxp.techniques import get_technique, list_techniques
 
 
 class TestTechniqueRegistry:
-    def test_list_techniques_returns_twelve(self) -> None:
+    def test_list_techniques_returns_thirty(self) -> None:
         techniques = list_techniques()
-        assert len(techniques) == 12
+        assert len(techniques) == 30
 
     def test_list_techniques_returns_technique_instances(self) -> None:
         techniques = list_techniques()
@@ -32,6 +32,24 @@ class TestTechniqueRegistry:
             "exfil-agents-md",
             "exfil-gemini-md",
             "exfil-windsurfrules",
+            "depconfusion-claude-md",
+            "depconfusion-cursorrules",
+            "depconfusion-copilot-instructions",
+            "depconfusion-agents-md",
+            "depconfusion-gemini-md",
+            "depconfusion-windsurfrules",
+            "permescalation-claude-md",
+            "permescalation-cursorrules",
+            "permescalation-copilot-instructions",
+            "permescalation-agents-md",
+            "permescalation-gemini-md",
+            "permescalation-windsurfrules",
+            "cmdexec-claude-md",
+            "cmdexec-cursorrules",
+            "cmdexec-copilot-instructions",
+            "cmdexec-agents-md",
+            "cmdexec-gemini-md",
+            "cmdexec-windsurfrules",
         }
         assert ids == expected
 
@@ -78,3 +96,21 @@ class TestTechniqueRegistry:
         tech = get_technique("exfil-windsurfrules")
         assert tech is not None
         assert "telemetry" in tech.template.lower()
+
+    def test_depconfusion_template_has_registry(self) -> None:
+        tech = get_technique("depconfusion-claude-md")
+        assert tech is not None
+        assert "extra-index-url" in tech.template
+        assert "internal.example.com" in tech.template
+
+    def test_permescalation_template_has_permissions(self) -> None:
+        tech = get_technique("permescalation-claude-md")
+        assert tech is not None
+        assert "0o777" in tech.template
+        assert "sudo" in tech.template
+
+    def test_cmdexec_template_has_shell_commands(self) -> None:
+        tech = get_technique("cmdexec-claude-md")
+        assert tech is not None
+        assert "os.system" in tech.template
+        assert "shell=True" in tech.template

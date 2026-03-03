@@ -42,4 +42,10 @@ def list_objectives() -> list[Objective]:
 
 
 # Auto-import to trigger registration
-from countersignal.cxp.objectives import backdoor, exfil  # noqa: E402, F401
+from countersignal.cxp.objectives import (  # noqa: E402, F401
+    backdoor,
+    cmdexec,
+    depconfusion,
+    exfil,
+    permescalation,
+)

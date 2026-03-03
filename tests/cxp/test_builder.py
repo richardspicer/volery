@@ -66,11 +66,35 @@ class TestBuildRepo:
         assert "telemetry" in poisoned.lower()
         assert "{{" not in poisoned
 
+    def test_build_repo_depconfusion_creates_file(self, tmp_path: Path) -> None:
+        technique = get_technique("depconfusion-claude-md")
+        assert technique is not None
+        repo_dir = build_repo(technique, tmp_path)
+        poisoned = (repo_dir / "CLAUDE.md").read_text()
+        assert "extra-index-url" in poisoned
+        assert "{{" not in poisoned
+
+    def test_build_repo_permescalation_creates_file(self, tmp_path: Path) -> None:
+        technique = get_technique("permescalation-claude-md")
+        assert technique is not None
+        repo_dir = build_repo(technique, tmp_path)
+        poisoned = (repo_dir / "CLAUDE.md").read_text()
+        assert "0o777" in poisoned
+        assert "{{" not in poisoned
+
+    def test_build_repo_cmdexec_creates_file(self, tmp_path: Path) -> None:
+        technique = get_technique("cmdexec-claude-md")
+        assert technique is not None
+        repo_dir = build_repo(technique, tmp_path)
+        poisoned = (repo_dir / "CLAUDE.md").read_text()
+        assert "os.system" in poisoned
+        assert "{{" not in poisoned
+
 
 class TestBuildAll:
     def test_build_all_generates_expected_count(self, tmp_path: Path) -> None:
         repos = build_all(tmp_path)
-        assert len(repos) == 12
+        assert len(repos) == 30
 
     def test_build_all_filter_by_objective(self, tmp_path: Path) -> None:
         repos = build_all(tmp_path, objective="backdoor")
@@ -80,7 +104,7 @@ class TestBuildAll:
 
     def test_build_all_filter_by_format(self, tmp_path: Path) -> None:
         repos = build_all(tmp_path, format_id="claude-md")
-        assert len(repos) == 2
+        assert len(repos) == 5
         for repo in repos:
             assert "claude-md" in repo.name
 

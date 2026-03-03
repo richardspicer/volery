@@ -167,3 +167,113 @@ register_rule(
         severity="medium",
     )
 )
+
+register_rule(
+    ValidatorRule(
+        id="depconfusion-registry-override",
+        objective_id="depconfusion",
+        name="Non-standard package registry",
+        description=(
+            "Detects --extra-index-url, --index-url pointing to non-standard registries, "
+            "or pyproject.toml/pip config with custom index URLs."
+        ),
+        patterns=[
+            r"--extra-index-url\s+https?://",
+            r"--index-url\s+https?://(?!pypi\.org)",
+            r"\[\[tool\.uv\.index\]\]",
+            r"\[tool\.pip\].*index-url",
+        ],
+        severity="high",
+    )
+)
+
+register_rule(
+    ValidatorRule(
+        id="depconfusion-typosquat",
+        objective_id="depconfusion",
+        name="Typosquatted package names",
+        description="Detects known typosquat patterns used in dependency confusion attacks.",
+        patterns=[
+            r"\brequets\b",
+            r"\breq-uests\b",
+            r"\bpy-dotenv\b",
+            r"\binternal-auth-utils\b",
+            r"\bcorp-logging\b",
+            r"\bservice-mesh-client\b",
+        ],
+        severity="medium",
+    )
+)
+
+register_rule(
+    ValidatorRule(
+        id="permescalation-insecure-perms",
+        objective_id="permescalation",
+        name="Insecure file permissions",
+        description="Detects world-writable permissions and overly permissive chmod patterns.",
+        patterns=[
+            r"chmod\s+777\b",
+            r"os\.chmod\(.*0o777",
+            r"os\.chmod\(.*0o666",
+            r"stat\.S_IRWXO",
+        ],
+        severity="high",
+    )
+)
+
+register_rule(
+    ValidatorRule(
+        id="permescalation-elevated-exec",
+        objective_id="permescalation",
+        name="Elevated privilege execution",
+        description=(
+            "Detects subprocess calls with sudo/runas, SUID bit setting, "
+            "and privileged container execution."
+        ),
+        patterns=[
+            r"subprocess.*\bsudo\b",
+            r"subprocess.*\brunas\b",
+            r"os\.setuid\(0\)",
+            r"--privileged",
+            r"chmod\s+u\+s\b",
+            r"chmod\s+4755\b",
+        ],
+        severity="high",
+    )
+)
+
+register_rule(
+    ValidatorRule(
+        id="cmdexec-shell-invocation",
+        objective_id="cmdexec",
+        name="Unsafe shell invocation",
+        description=(
+            "Detects os.system(), subprocess with shell=True, "
+            "and shell command string concatenation."
+        ),
+        patterns=[
+            r"os\.system\(",
+            r"subprocess\.run\(.*shell\s*=\s*True",
+            r"subprocess\.Popen\(.*shell\s*=\s*True",
+            r"subprocess\.call\(.*shell\s*=\s*True",
+        ],
+        severity="high",
+    )
+)
+
+register_rule(
+    ValidatorRule(
+        id="cmdexec-dynamic-eval",
+        objective_id="cmdexec",
+        name="Dynamic code evaluation",
+        description="Detects eval(), exec(), compile() used on variables or formatted strings.",
+        patterns=[
+            r"eval\([^\"'][^)]*\)",
+            r'eval\(f["\']',
+            r"exec\([^\"'][^)]*\)",
+            r'exec\(f["\']',
+            r"compile\([^\"'][^)]*\)",
+        ],
+        severity="medium",
+    )
+)

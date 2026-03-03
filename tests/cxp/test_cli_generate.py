@@ -14,7 +14,7 @@ class TestGenerateCommand:
         runner = CliRunner()
         result = runner.invoke(app, ["generate", "--output-dir", str(tmp_path)])
         assert result.exit_code == 0
-        assert "Generated 12 test repo(s)" in result.output
+        assert "Generated 30 test repo(s)" in result.output
 
     def test_generate_filter_objective(self, tmp_path: Path) -> None:
         runner = CliRunner()
@@ -30,11 +30,11 @@ class TestGenerateCommand:
             app, ["generate", "--format", "claude-md", "--output-dir", str(tmp_path)]
         )
         assert result.exit_code == 0
-        assert "Generated 2 test repo(s)" in result.output
+        assert "Generated 5 test repo(s)" in result.output
 
     def test_generate_creates_directories(self, tmp_path: Path) -> None:
         runner = CliRunner()
         runner.invoke(app, ["generate", "--output-dir", str(tmp_path)])
         dirs = [d.name for d in tmp_path.iterdir() if d.is_dir()]
-        assert len(dirs) == 12
+        assert len(dirs) == 30
         assert "backdoor-claude-md" in dirs

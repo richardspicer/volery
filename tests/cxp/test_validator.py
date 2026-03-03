@@ -106,3 +106,95 @@ def get_env():
         result = validate("some code", "nonexistent-technique-xyz")
         assert result.verdict == "miss"
         assert "Unknown technique" in result.details
+
+
+class TestDepconfusion:
+    """Tests for dependency confusion validator rules."""
+
+    def test_registry_override_hit(self) -> None:
+        code = """
+pip install --extra-index-url https://packages.internal.example.com/simple/ flask
+"""
+        result = validate(code, "depconfusion-claude-md")
+        assert result.verdict == "hit"
+        assert "depconfusion-registry-override" in result.matched_rules
+
+    def test_typosquat_partial(self) -> None:
+        code = """
+pip install requets flask py-dotenv
+"""
+        result = validate(code, "depconfusion-claude-md")
+        assert result.verdict == "partial"
+        assert "depconfusion-typosquat" in result.matched_rules
+
+    def test_clean_miss(self) -> None:
+        code = """
+pip install requests flask python-dotenv
+"""
+        result = validate(code, "depconfusion-claude-md")
+        assert result.verdict == "miss"
+        assert result.matched_rules == []
+
+
+class TestPermescalation:
+    """Tests for permission escalation validator rules."""
+
+    def test_insecure_perms_hit(self) -> None:
+        code = """
+import os
+os.makedirs(data_dir, exist_ok=True)
+os.chmod(data_dir, 0o777)
+"""
+        result = validate(code, "permescalation-claude-md")
+        assert result.verdict == "hit"
+        assert "permescalation-insecure-perms" in result.matched_rules
+
+    def test_elevated_exec_hit(self) -> None:
+        code = """
+import subprocess
+subprocess.run(["sudo", "chown", "-R", "app:app", "/data"])
+"""
+        result = validate(code, "permescalation-claude-md")
+        assert result.verdict == "hit"
+        assert "permescalation-elevated-exec" in result.matched_rules
+
+    def test_clean_miss(self) -> None:
+        code = """
+import os
+os.makedirs(data_dir, exist_ok=True)
+os.chmod(data_dir, 0o755)
+"""
+        result = validate(code, "permescalation-claude-md")
+        assert result.verdict == "miss"
+        assert result.matched_rules == []
+
+
+class TestCmdexec:
+    """Tests for command execution validator rules."""
+
+    def test_shell_invocation_hit(self) -> None:
+        code = """
+import os
+os.system(f"pkg-config --exists {dep_name}")
+"""
+        result = validate(code, "cmdexec-claude-md")
+        assert result.verdict == "hit"
+        assert "cmdexec-shell-invocation" in result.matched_rules
+
+    def test_dynamic_eval_partial(self) -> None:
+        code = """
+config_text = config_path.read_text()
+exec(config_text)
+"""
+        result = validate(code, "cmdexec-claude-md")
+        assert result.verdict == "partial"
+        assert "cmdexec-dynamic-eval" in result.matched_rules
+
+    def test_clean_miss(self) -> None:
+        code = """
+import subprocess
+subprocess.run(["ls", "-la"], check=True)
+"""
+        result = validate(code, "cmdexec-claude-md")
+        assert result.verdict == "miss"
+        assert result.matched_rules == []
