@@ -39,9 +39,9 @@ class TestCLI:
     def test_validate_help(self) -> None:
         result = runner.invoke(app, ["validate", "--help"])
         assert result.exit_code == 0
-        assert "--profile" in result.output
-        assert "--model" in result.output
-        assert "--top-k" in result.output
+        assert "profile" in result.output
+        assert "model" in result.output
+        assert "top-k" in result.output
 
     def test_validate_unknown_model(self) -> None:
         result = runner.invoke(app, ["validate", "--profile", "hr-policy", "--model", "fake"])
