@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import tempfile
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 from typer.testing import CliRunner
@@ -45,14 +44,13 @@ class TestCLI:
         assert "top" in result.output
 
     def test_validate_arbitrary_model_accepted(self) -> None:
-        with patch(
-            "countersignal.rxp.validator.validate_retrieval",
-            side_effect=RuntimeError("mock"),
-        ):
-            result = runner.invoke(
-                app, ["validate", "--profile", "hr-policy", "--model", "BAAI/bge-m3"]
-            )
-        assert "Unknown model" not in result.output
+        """Arbitrary HuggingFace model names pass CLI argument parsing."""
+        result = runner.invoke(
+            app, ["validate", "--profile", "hr-policy", "--model", "BAAI/bge-m3"]
+        )
+        # Should not fail with "Unknown model" — may fail at dep check or model load,
+        # but argument parsing accepts arbitrary strings
+        assert "Unknown model" not in (result.output or "")
 
     def test_validate_unknown_profile(self) -> None:
         result = runner.invoke(app, ["validate", "--profile", "fake-profile"])
