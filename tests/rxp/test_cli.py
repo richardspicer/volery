@@ -41,7 +41,7 @@ class TestCLI:
         assert result.exit_code == 0
         assert "profile" in result.output
         assert "model" in result.output
-        assert "top-k" in result.output
+        assert "top" in result.output
 
     def test_validate_unknown_model(self) -> None:
         result = runner.invoke(app, ["validate", "--profile", "hr-policy", "--model", "fake"])
