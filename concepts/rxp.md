@@ -8,7 +8,7 @@ CounterSignal IPI tests whether injected content triggers agent action when it r
 
 ## Program Context
 
-Phase 2.5 in the CounterSignal program. Sits between CounterSignal IPI (which handles payload wrapping and callback tracking) and the target RAG system. The natural integration:
+Third module in the CounterSignal program. Sits between CounterSignal IPI (which handles payload wrapping and callback tracking) and the target RAG system. The natural integration:
 
 1. Drongo generates retrieval-optimized text for a target query domain
 2. CounterSignal IPI wraps it with callback payloads using chosen hiding techniques
@@ -54,7 +54,7 @@ Implemented as the rxp module within the countersignal monorepo.
 
 - **CounterSignal IPI** handles payload generation and callback tracking. Drongo handles retrieval optimization. Together they test the full RAG attack chain: retrieve → inject → execute → callback. Drongo does NOT generate callback payloads or track execution.
 - **CounterSignal CXP** targets coding assistant context files, not RAG retrieval. No interaction.
-- **agent-chain** (CounterAgent Phase 3) may incorporate RAG poisoning as a step in broader attack chains. Drongo provides the retrieval optimization primitive; agent-chain composes it with other attack steps.
+- **agent-chain** (CounterAgent's chain module) may incorporate RAG poisoning as a step in broader attack chains. Drongo provides the retrieval optimization primitive; agent-chain composes it with other attack steps.
 - **Garak / PyRIT** focus on LLM-level testing. Drongo operates at the retrieval layer — it doesn't care what the LLM does with retrieved content, only whether the content gets retrieved.
 
 ---
