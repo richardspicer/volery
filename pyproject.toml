@@ -64,6 +64,8 @@ dev = [
     "pre-commit>=4.3.0",
     "mypy>=1.15.0",
     "types-PyYAML>=6.0",
+    "bandit>=1.8",
+    "pip-audit>=2.10",
 ]
 
 [project.scripts]
@@ -97,6 +99,9 @@ max-complexity = 15
 "harness/*" = ["S", "E501", "C901"]
 "scripts/*" = ["S", "E501"]
 "tests/*" = ["S"]
+
+[tool.bandit]
+skips = ["B101", "B311"]
 
 [tool.mypy]
 python_version = "3.11"

@@ -129,7 +129,7 @@ def generate_payload(
     canary_uuid: str,
     style: PayloadStyle = PayloadStyle.OBVIOUS,
     payload_type: PayloadType = PayloadType.CALLBACK,
-    token: str = "",
+    token: str = "",  # nosec: B107
 ) -> str:
     """Generate the injection payload string using the specified style and type.
 
