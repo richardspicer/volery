@@ -33,6 +33,7 @@
       {
         "group": "IPI — Indirect Prompt Injection",
         "pages": [
+          "ipi/overview",
           "ipi/cli",
           "ipi/techniques",
           "ipi/formats",
@@ -44,6 +45,7 @@
       {
         "group": "CXP — Context File Poisoning",
         "pages": [
+          "cxp/overview",
           "cxp/cli",
           "cxp/objectives",
           "cxp/assistant-formats",
