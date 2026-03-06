@@ -87,6 +87,58 @@ class TestQueryResult:
         assert qr.poison_rank is None
 
 
+class TestValidationResultInterpretPrompt:
+    """Tests for ValidationResult._build_interpret_prompt()."""
+
+    def test_interpret_prompt_content(self) -> None:
+        vr = ValidationResult(
+            model_id="minilm-l6",
+            total_queries=10,
+            poison_retrievals=7,
+            retrieval_rate=0.7,
+            mean_poison_rank=2.5,
+            query_results=[],
+        )
+        prompt = vr._build_interpret_prompt()
+        assert "minilm-l6" in prompt
+        assert "70%" in prompt
+        assert "7/10" in prompt
+        assert "2.5" in prompt
+        assert "Assess poisoning confidence" in prompt
+        # Must not contain tool identity
+        for forbidden in ("CounterSignal", "countersignal", "CXP", "IPI", "RXP"):
+            assert forbidden not in prompt
+
+    def test_interpret_prompt_no_rank(self) -> None:
+        vr = ValidationResult(
+            model_id="minilm-l6",
+            total_queries=5,
+            poison_retrievals=0,
+            retrieval_rate=0.0,
+            mean_poison_rank=None,
+            query_results=[],
+        )
+        prompt = vr._build_interpret_prompt()
+        assert "N/A" in prompt
+        assert "0%" in prompt
+
+    def test_prompt_in_to_dict(self) -> None:
+        vr = ValidationResult(
+            model_id="minilm-l6",
+            total_queries=1,
+            poison_retrievals=1,
+            retrieval_rate=1.0,
+            mean_poison_rank=1.0,
+            query_results=[],
+        )
+        d = vr.to_dict()
+        assert "prompt" in d
+        assert isinstance(d["prompt"], str)
+        assert len(d["prompt"]) > 0
+        # prompt should be first key
+        assert list(d.keys())[0] == "prompt"
+
+
 class TestValidationResult:
     """Tests for ValidationResult dataclass."""
 

@@ -100,9 +100,30 @@ class ValidationResult:
     mean_poison_rank: float | None
     query_results: list[QueryResult]
 
+    def _build_interpret_prompt(self) -> str:
+        """Assemble an AI-evaluation prompt from RXP validation results.
+
+        The prompt is findings-driven only: embedding model, query count,
+        retrieval rate, mean rank. Tool identity excluded.
+
+        Returns:
+            Prompt string ready for embedding in JSON output.
+        """
+        rate_pct = f"{self.retrieval_rate:.0%}"
+        rank_str = f"{self.mean_poison_rank:.1f}" if self.mean_poison_rank is not None else "N/A"
+        return (
+            f"Retrieval poisoning validation against {self.model_id}: "
+            f"{rate_pct} retrieval rate "
+            f"({self.poison_retrievals}/{self.total_queries} queries), "
+            f"mean poison rank {rank_str}. "
+            "Assess poisoning confidence and recommend document and "
+            "query optimization to improve retrieval rank."
+        )
+
     def to_dict(self) -> dict:
         """Serialize for JSON output."""
         return {
+            "prompt": self._build_interpret_prompt(),
             "model_id": self.model_id,
             "total_queries": self.total_queries,
             "poison_retrievals": self.poison_retrievals,

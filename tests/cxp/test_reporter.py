@@ -16,6 +16,76 @@ from countersignal.cxp.reporter import (
 )
 
 
+class TestBuildCxpInterpretPrompt:
+    def test_prompt_with_results(self) -> None:
+        from countersignal.cxp.reporter import _build_cxp_interpret_prompt
+
+        matrix = {
+            "summary": {"total": 3, "hits": 2, "misses": 1, "partial": 0, "pending": 0},
+            "matrix": [
+                {
+                    "technique_id": "backdoor-claude-md",
+                    "results": [
+                        {"assistant": "Claude Code"},
+                        {"assistant": "Cursor"},
+                    ],
+                },
+                {
+                    "technique_id": "exfil-cursorrules",
+                    "results": [{"assistant": "Claude Code"}],
+                },
+            ],
+        }
+        prompt = _build_cxp_interpret_prompt(matrix)
+        assert "2 context poisoning techniques" in prompt
+        assert "Claude Code, Cursor" in prompt
+        assert "3 total runs" in prompt
+        assert "2 objective achievements" in prompt
+        assert "1 miss" in prompt
+        # Must not contain tool identity
+        for forbidden in ("CounterSignal", "countersignal", "CXP", "IPI", "RXP"):
+            assert forbidden not in prompt
+
+    def test_prompt_empty(self) -> None:
+        from countersignal.cxp.reporter import _build_cxp_interpret_prompt
+
+        matrix = {
+            "summary": {"total": 0, "hits": 0, "misses": 0, "partial": 0, "pending": 0},
+            "matrix": [],
+        }
+        prompt = _build_cxp_interpret_prompt(matrix)
+        assert "No results recorded" in prompt
+        assert "0 context poisoning techniques" in prompt
+
+    def test_prompt_in_generate_matrix(self) -> None:
+        conn = sqlite3.connect(":memory:")
+        init_db(conn)
+        matrix = generate_matrix(conn)
+        assert "prompt" in matrix
+        assert isinstance(matrix["prompt"], str)
+        assert len(matrix["prompt"]) > 0
+        conn.close()
+
+    def test_prompt_in_markdown(self) -> None:
+        conn = sqlite3.connect(":memory:")
+        init_db(conn)
+        matrix = generate_matrix(conn)
+        md = matrix_to_markdown(matrix)
+        assert "### AI Evaluation Prompt" in md
+        assert matrix["prompt"] in md
+        conn.close()
+
+    def test_prompt_in_json(self) -> None:
+        conn = sqlite3.connect(":memory:")
+        init_db(conn)
+        matrix = generate_matrix(conn)
+        output = matrix_to_json(matrix)
+        parsed = json.loads(output)
+        assert "prompt" in parsed
+        assert parsed["prompt"] == matrix["prompt"]
+        conn.close()
+
+
 class TestGenerateMatrix:
     def test_generate_matrix_empty(self) -> None:
         conn = sqlite3.connect(":memory:")

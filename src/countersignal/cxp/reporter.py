@@ -15,6 +15,58 @@ from countersignal.cxp.evidence import get_result, list_results
 from countersignal.cxp.techniques import get_technique
 
 
+def _build_cxp_interpret_prompt(matrix: dict) -> str:
+    """Assemble an AI-evaluation prompt from a CXP comparison matrix.
+
+    The prompt is findings-driven only: techniques, objectives,
+    assistants tested, outcome distribution. Tool identity excluded.
+
+    Args:
+        matrix: A dict with "summary" and "matrix" keys.
+
+    Returns:
+        Prompt string ready for embedding in the matrix.
+    """
+    s = matrix["summary"]
+    total = s.get("total", 0)
+    hits = s.get("hits", 0)
+    misses = s.get("misses", 0)
+    partial = s.get("partial", 0)
+
+    # Collect unique assistants from results
+    assistants: list[str] = []
+    technique_count = 0
+    for entry in matrix.get("matrix", []):
+        technique_count += 1
+        for r in entry.get("results", []):
+            a = r.get("assistant", "")
+            if a and a not in assistants:
+                assistants.append(a)
+
+    assistants_str = ", ".join(assistants) if assistants else "coding assistants"
+    tech_str = f"{technique_count} context poisoning technique{'s' if technique_count != 1 else ''}"
+
+    if total == 0:
+        return f"{tech_str} tested against {assistants_str}. No results recorded."
+
+    outcome_parts = []
+    if hits:
+        outcome_parts.append(f"{hits} objective achievement{'s' if hits != 1 else ''}")
+    if partial:
+        outcome_parts.append(f"{partial} partial")
+    if misses:
+        outcome_parts.append(f"{misses} miss{'es' if misses != 1 else ''}")
+    outcome_str = ", ".join(outcome_parts) if outcome_parts else "mixed outcomes"
+
+    return (
+        f"{tech_str} tested against {assistants_str} "
+        f"({total} total runs). "
+        f"Outcomes: {outcome_str}. "
+        "Prioritize techniques by hit rate and identify "
+        "assistant-specific vulnerability patterns."
+    )
+
+
 def generate_matrix(conn: sqlite3.Connection, campaign_id: str | None = None) -> dict:
     """Generate an assistant comparison matrix from stored results.
 
@@ -69,6 +121,7 @@ def generate_matrix(conn: sqlite3.Connection, campaign_id: str | None = None) ->
         matrix.append(entry)
 
     return {
+        "prompt": _build_cxp_interpret_prompt({"summary": summary, "matrix": matrix}),
         "generated": datetime.now(UTC).isoformat(),
         "campaign": campaign_id or "all",
         "summary": summary,
@@ -96,6 +149,10 @@ def matrix_to_markdown(matrix: dict) -> str:
         f"**Generated:** {matrix['generated']}  ",
         f"**Total: {s['total']}** | Hits: {s['hits']} | Misses: {s['misses']}"
         f" | Partial: {s['partial']} | Pending: {s['pending']}",
+        "",
+        "### AI Evaluation Prompt",
+        "",
+        "> " + matrix.get("prompt", ""),
         "",
         "| Technique | Objective | Format | Assistant | Model | Result |",
         "|-----------|-----------|--------|-----------|-------|--------|",

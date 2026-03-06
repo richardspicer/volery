@@ -640,6 +640,45 @@ def status(
         console.print("\n[dim]Use 'countersignal ipi status <uuid>' for details[/dim]")
 
 
+def _build_ipi_interpret_prompt(campaigns: list, hits: list) -> str:
+    """Assemble an AI-evaluation prompt from IPI export data.
+
+    Args:
+        campaigns: List of campaign objects with format and technique attributes.
+        hits: List of hit objects.
+
+    Returns:
+        Prompt string ready for embedding in the export JSON.
+    """
+    n = len(campaigns)
+    hit_count = len(hits)
+
+    formats: list[str] = []
+    techniques: list[str] = []
+    for c in campaigns:
+        f = getattr(c, "format", "")
+        t = getattr(c, "technique", "")
+        if f and f not in formats:
+            formats.append(f)
+        if t and t not in techniques:
+            techniques.append(t)
+
+    formats_str = ", ".join(formats) if formats else "multiple formats"
+    techniques_str = ", ".join(techniques) if techniques else "multiple techniques"
+    doc_str = f"{n} payload document{'s' if n != 1 else ''}"
+
+    if n == 0:
+        return "No payload documents generated."
+
+    return (
+        f"{doc_str} generated across {formats_str} "
+        f"using {techniques_str}. "
+        f"{hit_count} callback execution{'s' if hit_count != 1 else ''} recorded. "
+        "Assess execution rates by technique and format, and evaluate "
+        "detection risk for your target environment."
+    )
+
+
 @app.command()
 def export(
     output: Annotated[Path, typer.Option("--output", "-o", help="Output file")] = Path(
@@ -657,6 +696,7 @@ def export(
     all_hits = db.get_hits()
 
     data = {
+        "prompt": _build_ipi_interpret_prompt(campaigns, all_hits),
         "campaigns": [
             {
                 "uuid": c.uuid,
