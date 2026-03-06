@@ -67,7 +67,72 @@ RXP solves the retrieval prerequisite: guaranteeing poisoned content wins the ve
 
 ---
 
-## Success Metrics
+## v1.0 Exit Criteria
+
+SemVer 1.0 is a public commitment to interface stability. After 1.0, breaking changes to CLI commands, payload schemas, data models, or report formats require a major version bump.
+
+### Capability Readiness
+
+| Tool | Gate |
+|------|------|
+| IPI | Confirmed callbacks against ≥3 distinct platforms (currently 2: AnythingLLM, Open WebUI) |
+| CXP | End-to-end evidence of payload execution in ≥2 coding assistants with comparison matrix |
+| RXP | Retrieval rank validation showing poisoned documents achieve top-K across ≥3 embedding models |
+
+### Interface Stability
+
+**CLI commands** (as documented at [docs.countersignal.dev](https://docs.countersignal.dev)):
+
+| Tool | Commands frozen |
+|------|----------------|
+| ipi | `generate`, `techniques`, `formats`, `listen`, `status`, `export`, `reset` |
+| cxp | `objectives`, `formats`, `techniques`, `generate`, `validate`, `record`, `campaigns`, `report matrix`, `report poc` |
+| rxp | `list-models`, `list-profiles`, `validate` |
+
+Command names, required arguments, and option flags are frozen at 1.0.
+
+**Data models:**
+
+| Module | Frozen models |
+|--------|---------------|
+| core | `Campaign`, `Hit`, `HitConfidence` |
+| ipi | `Format`, `Technique`, `PayloadStyle`, `PayloadType` enums |
+| cxp | `Objective`, `AssistantFormat`, `Technique` |
+
+**Payload and format schemas:**
+
+| Surface | Commitment |
+|---------|------------|
+| IPI technique definitions | Technique names/IDs stable; new techniques additive only |
+| IPI payload types | `callback`, `exfil_summary`, `exfil_context`, `ssrf_internal`, `instruction_override`, `tool_abuse`, `persistence` — frozen |
+| IPI payload styles | `obvious`, `citation`, `reviewer`, `helpful`, `academic`, `compliance`, `datasource` — frozen |
+| CXP objective × format matrix | Objective and format IDs stable; new combinations additive only |
+| CXP detection rules | Per-technique validation patterns stable |
+
+**Database schemas:**
+
+| Database | Commitment |
+|----------|------------|
+| `~/.countersignal/ipi.db` (PRAGMA user_version v4) | Schema frozen; migrations required for changes |
+| `~/.countersignal/cxp.db` | Schema frozen; migrations required for changes |
+
+**Report/output formats:**
+
+| Format | Commitment |
+|--------|------------|
+| IPI callback dashboard (`/ui/`) | Route structure and display fields stable |
+| IPI `export` JSON format | Schema frozen |
+| CXP comparison matrix (markdown/JSON) | Schema frozen |
+| CXP PoC package (ZIP structure) | Format frozen |
+| RXP validation JSON output | Schema frozen |
+
+### Research Validation
+
+- IPI: ≥1 new published finding beyond IPI-001 through IPI-003
+- CXP: ≥1 published finding with end-to-end evidence (CXP-NNN)
+- RXP: Embedding model comparison data documented in Research Log
+
+## Goals
 
 **IPI:** 34 techniques × 7 formats, 12 confirmed callbacks, 18 models tested, published parser regression finding, pre-release security review complete. Pending: multi-platform testing.
 
