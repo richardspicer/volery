@@ -84,7 +84,7 @@ countersignal (monorepo)
 ├── core/     Shared callback infrastructure
 ├── ipi/      Indirect prompt injection detection (v0.1.0 released)
 ├── cxp/      Coding assistant context poisoning (scaffolded, testing)
-└── rxp/      RAG retrieval optimization (planned)
+└── rxp/      RAG retrieval optimization (v0.1.0 released)
 ```
 
 ## Reference Links
