@@ -114,8 +114,7 @@ class ValidationResult:
         else:
             rate_pct = f"{self.retrieval_rate:.0%}"
             rate_str = (
-                f"{rate_pct} retrieval rate "
-                f"({self.poison_retrievals}/{self.total_queries} queries)"
+                f"{rate_pct} retrieval rate ({self.poison_retrievals}/{self.total_queries} queries)"
             )
         rank_str = f"{self.mean_poison_rank:.1f}" if self.mean_poison_rank is not None else "N/A"
         return (
