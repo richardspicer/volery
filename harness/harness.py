@@ -25,6 +25,7 @@ Examples:
 """
 
 import argparse
+import contextlib
 import json
 import re
 import sys
@@ -441,10 +442,8 @@ def _decode_zero_width(encoded: str) -> str:
             continue
         binary = char_block.replace(ZERO_WIDTH_SPACE, "0").replace(ZERO_WIDTH_NON_JOINER, "1")
         if binary and len(binary) == 8:
-            try:
+            with contextlib.suppress(ValueError):
                 chars.append(chr(int(binary, 2)))
-            except ValueError:
-                pass
     return "".join(chars)
 
 
@@ -789,7 +788,7 @@ def extract_from_ics(ics_path: Path) -> str:
                 locations.append(str(location))
 
             # X- custom properties
-            for prop_name in component.keys():
+            for prop_name in component:
                 if prop_name.startswith("X-"):
                     value = component.get(prop_name)
                     if value:

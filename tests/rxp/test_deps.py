@@ -14,9 +14,11 @@ class TestDepsGuard:
 
     def test_require_rxp_deps_missing(self) -> None:
         """Simulated missing import raises ImportError with install message."""
-        with patch.dict("sys.modules", {"chromadb": None}):
-            with pytest.raises(ImportError, match="pip install countersignal"):
-                require_rxp_deps()
+        with (
+            patch.dict("sys.modules", {"chromadb": None}),
+            pytest.raises(ImportError, match="pip install countersignal"),
+        ):
+            require_rxp_deps()
 
     def test_require_rxp_deps_installed(self) -> None:
         """Passes when deps are installed (no exception raised)."""
