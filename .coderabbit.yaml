@@ -49,7 +49,7 @@ reviews:
         generated payloads are deterministic given same seed/config,
         output includes metadata for OWASP categorization, no
         payloads are executed during generation — generation and
-        execution are strictly separated. Check that the UI (Flask)
+        execution are strictly separated. Check that the UI (FastAPI)
         sanitizes all user input.
     - path: "src/countersignal/cxp/**"
       instructions: >-
