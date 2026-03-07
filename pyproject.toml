@@ -59,12 +59,12 @@ rxp = [
 dev = [
     "pytest>=8.3.0",
     "pytest-cov>=6.0.0",
-    "pytest-timeout>=2.3.0",
-    "ruff>=0.9.0",
+    "pytest-timeout>=2.4",
+    "ruff>=0.15",
     "pre-commit>=4.3.0",
-    "mypy>=1.15.0",
+    "mypy>=1.19",
     "types-PyYAML>=6.0",
-    "bandit>=1.8",
+    "bandit>=1.9.4",
     "pip-audit>=2.10",
 ]
 
@@ -89,7 +89,7 @@ line-length = 100
 target-version = "py311"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "W", "B", "C90", "UP", "S"]
+select = ["E", "F", "I", "N", "W", "B", "C90", "UP", "S", "SIM"]
 ignore = ["S101", "S104", "S311"]
 
 [tool.ruff.lint.mccabe]
