@@ -112,3 +112,16 @@ CounterSignal includes three modules, each targeting a different attack surface:
 | **IPI** | Document ingestion | Whether AI agents execute hidden instructions in uploaded/ingested documents (PDF, Image, Markdown, HTML, DOCX, ICS, EML) | Out-of-band HTTP callback from the agent |
 | **CXP** | Project instruction files | Whether poisoned context files (CLAUDE.md, .cursorrules, etc.) cause coding assistants to produce vulnerable code | Detection rule validation against captured assistant output |
 | **RXP** | RAG retrieval layer | Whether adversarial documents win vector similarity battles and enter the LLM context window | Retrieval rate and poison rank scoring across embedding models |
+
+
+## Interpret prompts
+
+Every report and export output in CounterSignal includes a `prompt` field containing an AI-evaluation prompt. This prompt summarizes the structured findings in natural language and can be fed directly to an LLM for automated analysis, triage recommendations, or follow-on testing priorities.
+
+| Module | What the prompt summarizes |
+|--------|---------------------------|
+| **CXP** | Techniques, objectives, assistants tested, outcome distribution |
+| **IPI** | Campaign count, formats, techniques, callback hit rate |
+| **RXP** | Embedding model, query count, retrieval rate, mean poison rank |
+
+The prompt appears as `"prompt"` in JSON/export output. CounterAgent audit, inject, and chain modules use the same pattern for cross-ecosystem consistency.
