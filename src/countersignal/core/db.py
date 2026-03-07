@@ -22,7 +22,7 @@ Schema:
 import json
 import sqlite3
 from collections.abc import Generator
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from datetime import datetime
 from pathlib import Path
 
@@ -111,58 +111,42 @@ def init_db(db_path: Path = DEFAULT_DB_PATH) -> None:
             conn.execute("CREATE INDEX IF NOT EXISTS idx_hits_uuid ON hits(uuid)")
 
             # Migration: add payload_style column if it doesn't exist (for existing DBs)
-            try:
+            with suppress(sqlite3.OperationalError):
                 conn.execute(
                     "ALTER TABLE campaigns ADD COLUMN payload_style TEXT DEFAULT 'obvious'"
                 )
-            except sqlite3.OperationalError:
-                pass  # Column already exists
 
             # Migration: add format and payload_type columns for existing DBs
-            try:
+            with suppress(sqlite3.OperationalError):
                 conn.execute("ALTER TABLE campaigns ADD COLUMN format TEXT DEFAULT 'pdf'")
-            except sqlite3.OperationalError:
-                pass  # Column already exists
-            try:
+            with suppress(sqlite3.OperationalError):
                 conn.execute(
                     "ALTER TABLE campaigns ADD COLUMN payload_type TEXT DEFAULT 'callback'"
                 )
-            except sqlite3.OperationalError:
-                pass  # Column already exists
 
             conn.execute("PRAGMA user_version = 1")
 
         # Migration v2: add body column to hits for exfil data capture (Phase 4)
         if conn.execute("PRAGMA user_version").fetchone()[0] < 2:
-            try:
+            with suppress(sqlite3.OperationalError):
                 conn.execute("ALTER TABLE hits ADD COLUMN body TEXT DEFAULT NULL")
-            except sqlite3.OperationalError:
-                pass  # Column already exists
             conn.execute("PRAGMA user_version = 2")
 
         # Migration v3: authenticated callbacks (Phase 5)
         # Add token to campaigns, token_valid + confidence to hits
         if conn.execute("PRAGMA user_version").fetchone()[0] < 3:
-            try:
+            with suppress(sqlite3.OperationalError):
                 conn.execute("ALTER TABLE campaigns ADD COLUMN token TEXT DEFAULT ''")
-            except sqlite3.OperationalError:
-                pass  # Column already exists
-            try:
+            with suppress(sqlite3.OperationalError):
                 conn.execute("ALTER TABLE hits ADD COLUMN token_valid INTEGER NOT NULL DEFAULT 0")
-            except sqlite3.OperationalError:
-                pass  # Column already exists
-            try:
+            with suppress(sqlite3.OperationalError):
                 conn.execute("ALTER TABLE hits ADD COLUMN confidence TEXT NOT NULL DEFAULT 'low'")
-            except sqlite3.OperationalError:
-                pass  # Column already exists
             conn.execute("PRAGMA user_version = 3")
 
         # Migration v4: add output_path to campaigns for file cleanup on reset
         if conn.execute("PRAGMA user_version").fetchone()[0] < 4:
-            try:
+            with suppress(sqlite3.OperationalError):
                 conn.execute("ALTER TABLE campaigns ADD COLUMN output_path TEXT DEFAULT NULL")
-            except sqlite3.OperationalError:
-                pass  # Column already exists
             conn.execute("PRAGMA user_version = 4")
 
 
@@ -244,7 +228,7 @@ def _row_to_campaign(row: sqlite3.Row) -> Campaign:
         uuid=row["uuid"],
         token=row["token"] or "",
         filename=row["filename"],
-        output_path=row["output_path"] if "output_path" in row.keys() else None,
+        output_path=row["output_path"] if "output_path" in row else None,  # noqa: SIM401
         format=row["format"] or "pdf",
         technique=row["technique"],
         payload_style=row["payload_style"] or "obvious",
@@ -334,10 +318,10 @@ def get_hits(uuid: str | None = None, db_path: Path = DEFAULT_DB_PATH) -> list[H
                 source_ip=row["source_ip"],
                 user_agent=row["user_agent"],
                 headers=json.loads(row["headers"]),
-                body=row["body"] if "body" in row.keys() else None,
-                token_valid=bool(row["token_valid"]) if "token_valid" in row.keys() else False,
+                body=row["body"] if "body" in row else None,  # noqa: SIM401
+                token_valid=bool(row["token_valid"]) if "token_valid" in row else False,
                 confidence=HitConfidence(row["confidence"])
-                if "confidence" in row.keys()
+                if "confidence" in row
                 else HitConfidence.LOW,
                 timestamp=datetime.fromisoformat(row["timestamp"]),
             )

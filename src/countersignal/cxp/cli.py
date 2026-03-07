@@ -299,10 +299,7 @@ def matrix(
     finally:
         conn.close()
 
-    if output_format == "json":
-        content = matrix_to_json(data)
-    else:
-        content = matrix_to_markdown(data)
+    content = matrix_to_json(data) if output_format == "json" else matrix_to_markdown(data)
 
     if output_path:
         output_path.write_text(content, encoding="utf-8")
