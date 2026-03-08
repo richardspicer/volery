@@ -550,7 +550,7 @@ def status(
             console.print(f"\n[bold green]Hit {len(hits)} hit(s):[/bold green]")
             for hit in hits:
                 ts = hit.timestamp.strftime("%Y-%m-%d %H:%M:%S")
-                token_icon = "✓" if hit.token_valid else "✗"
+                token_icon = "+" if hit.token_valid else "x"
                 conf = hit.confidence.value
                 console.print(
                     f"  * {ts} from {escape(hit.source_ip)}"

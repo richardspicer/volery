@@ -96,7 +96,7 @@ def log_hit_to_console(hit: Hit) -> None:
         hit: Hit object containing callback metadata.
     """
     conf_style = _CONFIDENCE_STYLES.get(hit.confidence, "dim")
-    token_indicator = "[green]✓ valid[/green]" if hit.token_valid else "[red]✗ missing[/red]"
+    token_indicator = "[green]+ valid[/green]" if hit.token_valid else "[red]x missing[/red]"
 
     console.print()
     console.print("=" * 60, style="bold yellow")
