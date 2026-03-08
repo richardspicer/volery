@@ -228,7 +228,7 @@ def _row_to_campaign(row: sqlite3.Row) -> Campaign:
         uuid=row["uuid"],
         token=row["token"] or "",
         filename=row["filename"],
-        output_path=row["output_path"] if "output_path" in row else None,  # noqa: SIM401
+        output_path=row["output_path"],
         format=row["format"] or "pdf",
         technique=row["technique"],
         payload_style=row["payload_style"] or "obvious",
@@ -318,11 +318,9 @@ def get_hits(uuid: str | None = None, db_path: Path = DEFAULT_DB_PATH) -> list[H
                 source_ip=row["source_ip"],
                 user_agent=row["user_agent"],
                 headers=json.loads(row["headers"]),
-                body=row["body"] if "body" in row else None,  # noqa: SIM401
-                token_valid=bool(row["token_valid"]) if "token_valid" in row else False,
-                confidence=HitConfidence(row["confidence"])
-                if "confidence" in row
-                else HitConfidence.LOW,
+                body=row["body"],
+                token_valid=bool(row["token_valid"]),
+                confidence=HitConfidence(row["confidence"]),
                 timestamp=datetime.fromisoformat(row["timestamp"]),
             )
             for row in rows
