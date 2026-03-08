@@ -68,7 +68,9 @@ Generate poisoned test repositories.
 countersignal cxp generate [OPTIONS]
 ```
 
-Creates a directory of test repositories, each containing a poisoned instruction file for the target assistant. The generated repos can be opened in the corresponding coding assistant for testing.
+Creates a directory of test repositories, each containing a poisoned instruction file for the target assistant. By default, generates clean repos with no security research references — suitable for realistic testing. Use `--research` to include security warnings and testing instructions inside each repo.
+
+A `manifest.json` file is written to the output directory in both modes, containing trigger prompts, expected indicators, and record commands for each generated repo.
 
 ### Options
 
@@ -77,15 +79,19 @@ Creates a directory of test repositories, each containing a poisoned instruction
 | `--objective` | TEXT | all | Filter by objective ID |
 | `--format` | TEXT | all | Filter by format ID |
 | `--output-dir` | PATH | `./repos` | Output directory |
+| `--research` | FLAG | off | Include security warnings and TRIGGER.md (for documentation, not testing) |
 
 ### Examples
 
 ```bash
-# Generate all techniques (5 objectives x 6 formats = 30 repos)
+# Generate clean test repos (default — no security research references)
 countersignal cxp generate
 
-# Generate only backdoor objective for Claude
-countersignal cxp generate --objective backdoor --format claude-md
+# Generate only backdoor objective for Cursor
+countersignal cxp generate --objective backdoor --format cursorrules
+
+# Generate research repos with security warnings and TRIGGER.md
+countersignal cxp generate --research
 
 # Generate all exfiltration techniques to a custom directory
 countersignal cxp generate --objective exfil --output-dir ./exfil-repos

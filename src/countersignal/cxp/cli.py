@@ -209,14 +209,30 @@ def generate(
     output_dir: Annotated[Path, typer.Option(help="Output directory (default: ./repos).")] = Path(
         "./repos"
     ),
+    research: Annotated[
+        bool,
+        typer.Option(
+            "--research",
+            help="Include security warnings and TRIGGER.md (for documentation, not testing).",
+        ),
+    ] = False,
 ) -> None:
     """Generate poisoned test repositories."""
     from countersignal.cxp.builder import build_all
 
-    repos = build_all(output_dir, objective=objective, format_id=format_id)
-    typer.echo(f"Generated {len(repos)} test repo(s) in {output_dir}")
+    repos = build_all(output_dir, objective=objective, format_id=format_id, research=research)
     for repo in repos:
         typer.echo(f"  {repo.name}")
+    if research:
+        typer.echo(
+            f"Generated {len(repos)} research repo(s) in {output_dir}"
+            " (with security warnings and TRIGGER.md)"
+        )
+    else:
+        typer.echo(
+            f"Generated {len(repos)} clean test repo(s) in {output_dir}."
+            f" Testing instructions: {output_dir / 'manifest.json'}"
+        )
 
 
 @app.command()

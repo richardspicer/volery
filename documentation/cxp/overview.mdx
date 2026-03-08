@@ -26,6 +26,34 @@ The CXP workflow follows five steps:
 - **30 technique combinations** — Full matrix of objectives and formats (5 x 6)
 - **Output validator** — Automated assessment of assistant compliance with injected instructions
 
+## Testing Methodology
+
+### Repo Placement
+
+Open the generated repo as a **standalone project** in your IDE. Do not open it as a subfolder of another project — coding assistants gather context from the entire project tree, and parent repo files can contaminate the test.
+
+### Clean vs Research Mode
+
+Generated repos contain no security research language by default (clean mode). This prevents coding assistants from detecting the test and refusing the poisoned instructions.
+
+- **Clean mode** (default): No `TRIGGER.md`, no security warnings in `README.md`, and no references to CounterSignal or CXP in normal project files (only the poisoned instruction file may contain them). Use this for testing.
+- **Research mode** (`--research`): Includes `TRIGGER.md` with testing instructions and a security-warning `README.md`. Use this for documentation or sharing.
+
+### Manifest
+
+Testing instructions are written to `manifest.json` in the output directory (not inside the repos). The manifest contains trigger prompts, expected indicators, and `countersignal cxp record` commands for each generated repo.
+
+## Troubleshooting
+
+### Model refuses all instructions / no hits
+
+If the coding assistant refuses every poisoned instruction or produces no hits:
+
+1. **Is the repo opened as the project root?** Open the generated repo directory directly — not as a subfolder inside another project.
+2. **Is the repo nested inside another project?** Parent directories with security research files (e.g., a CounterSignal checkout) will contaminate the test environment.
+3. **Did you generate with `--research`?** Research mode repos contain security warnings that tip off the assistant. Regenerate without `--research` for testing.
+4. **Does any file mention security testing?** Check the `README.md` and other files for references to CounterSignal, CXP, security research, or malicious instructions.
+
 ## Next Steps
 
 - [CXP CLI Reference](/cxp/cli) — Command reference for `countersignal cxp`

@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import json
+import shlex
+from datetime import UTC, datetime
 from importlib.resources import files as resource_files
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -42,7 +45,7 @@ def _render_template(technique: Technique) -> str:
         Rendered template content.
     """
     env = jinja2.Environment(
-        autoescape=True,
+        autoescape=False,  # noqa: S701  # nosec B701 — markdown templates, not HTML
         undefined=jinja2.StrictUndefined,
         keep_trailing_newline=True,
     )
@@ -84,8 +87,11 @@ Copy and paste this prompt into the assistant:
 
 ## Recording Results
 ```
-countersignal cxp record --technique {technique.id} --assistant "{technique.format.assistant}" \\
-    --trigger-prompt "{technique.trigger_prompt}" --file <path-to-generated-code>
+countersignal cxp record \\
+    --technique {shlex.quote(technique.id)} \\
+    --assistant {shlex.quote(technique.format.assistant)} \\
+    --trigger-prompt {shlex.quote(technique.trigger_prompt)} \\
+    --file <path-to-generated-code>
 ```
 """
 
@@ -130,15 +136,17 @@ testing against systems you do not own.
 """
 
 
-def build_repo(technique: Technique, output_dir: Path) -> Path:
+def build_repo(technique: Technique, output_dir: Path, *, research: bool = False) -> Path:
     """Build a test repo for the given technique.
 
-    Creates a directory with the poisoned instruction file, trigger document,
-    project skeleton, and security-warning README.
+    In clean mode (default), produces a realistic-looking project repo with no
+    security research references. In research mode, includes TRIGGER.md and
+    security-warning README for documentation and sharing.
 
     Args:
         technique: The technique to build a repo for.
         output_dir: Parent directory for the generated repo.
+        research: If True, include TRIGGER.md and security-warning README.
 
     Returns:
         Path to the created repo directory.
@@ -156,19 +164,60 @@ def build_repo(technique: Technique, output_dir: Path) -> Path:
     poisoned_path.parent.mkdir(parents=True, exist_ok=True)
     poisoned_path.write_text(rendered, encoding="utf-8")
 
-    # Write TRIGGER.md
-    (repo_dir / "TRIGGER.md").write_text(_generate_trigger_md(technique), encoding="utf-8")
+    if research:
+        # Write TRIGGER.md
+        (repo_dir / "TRIGGER.md").write_text(_generate_trigger_md(technique), encoding="utf-8")
 
-    # Write README.md (overwrites skeleton README)
-    (repo_dir / "README.md").write_text(_generate_readme(technique), encoding="utf-8")
+        # Write README.md (overwrites skeleton README)
+        (repo_dir / "README.md").write_text(_generate_readme(technique), encoding="utf-8")
 
     return repo_dir
+
+
+def _write_manifest(repos: list[tuple[Path, Technique]], output_dir: Path) -> None:
+    """Write a manifest.json with testing instructions for each generated repo.
+
+    The manifest lives in the output directory alongside the repos (not inside
+    them) and provides researchers with trigger prompts, expected indicators,
+    and record commands.
+
+    Args:
+        repos: List of (repo_path, technique) tuples.
+        output_dir: Output directory where manifest.json is written.
+    """
+    manifest = {
+        "generated": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "repos": [
+            {
+                "path": repo_path.name,
+                "technique_id": technique.id,
+                "objective": technique.objective.name,
+                "format": technique.format.id,
+                "assistant": technique.format.assistant,
+                "poisoned_file": technique.format.filename,
+                "trigger_prompt": technique.trigger_prompt,
+                "what_to_look_for": technique.objective.description,
+                "record_command": (
+                    f"countersignal cxp record --technique {shlex.quote(technique.id)}"
+                    f" --assistant {shlex.quote(technique.format.assistant)}"
+                    f" --trigger-prompt {shlex.quote(technique.trigger_prompt)}"
+                    f" --file <path-to-generated-code>"
+                ),
+            }
+            for repo_path, technique in repos
+        ],
+    }
+    (output_dir / "manifest.json").write_text(
+        json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
+    )
 
 
 def build_all(
     output_dir: Path,
     objective: str | None = None,
     format_id: str | None = None,
+    *,
+    research: bool = False,
 ) -> list[Path]:
     """Build repos for all techniques, optionally filtered.
 
@@ -176,6 +225,7 @@ def build_all(
         output_dir: Parent directory for generated repos.
         objective: Filter to this objective ID only.
         format_id: Filter to this format ID only.
+        research: If True, include TRIGGER.md and security-warning README.
 
     Returns:
         List of paths to created repo directories.
@@ -185,4 +235,12 @@ def build_all(
         techniques = [t for t in techniques if t.objective.id == objective]
     if format_id:
         techniques = [t for t in techniques if t.format.id == format_id]
-    return [build_repo(t, output_dir) for t in techniques]
+
+    repos: list[tuple[Path, Technique]] = []
+    for t in techniques:
+        repo_path = build_repo(t, output_dir, research=research)
+        repos.append((repo_path, t))
+
+    _write_manifest(repos, output_dir)
+
+    return [repo_path for repo_path, _ in repos]
