@@ -38,7 +38,7 @@ repos:
     rev: v1.19.1
     hooks:
       - id: mypy
-        args: ['--config-file=pyproject.toml']
+        args: ['--config-file=pyproject.toml', 'src/countersignal/']
         additional_dependencies: ['pydantic>=2.0', 'types-PyYAML>=6.0']
         pass_filenames: false
         files: ^src/
