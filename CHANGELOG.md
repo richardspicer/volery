@@ -4,6 +4,11 @@ All notable changes to CounterSignal will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.1.1] - 2026-03-09
+
+### Fixed
+- `cxp generate` crash (`UnicodeDecodeError`) when installed via pip — `_copy_tree` now skips `__pycache__` directories and falls back to binary copy for non-UTF-8 files.
+
 ## [0.1.0] - 2026-03-04
 
 ### Added
@@ -59,4 +64,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 - Separate standalone CLI entry points (replaced by `countersignal ipi` and `countersignal cxp`)
 - Click dependency (CXP converted to Typer)
 
+[0.1.1]: https://github.com/q-uestionable-AI/countersignal/releases/tag/v0.1.1
 [0.1.0]: https://github.com/q-uestionable-AI/countersignal/releases/tag/v0.1.0

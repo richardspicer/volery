@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "countersignal"
-version = "0.1.0"
+version = "0.1.1"
 description = "Agentic AI content & supply chain attack toolkit — indirect prompt injection, context poisoning, and retrieval poisoning"
 readme = "README.md"
 license = "MIT"
