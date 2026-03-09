@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from countersignal.cxp.builder import build_all, build_repo
+from countersignal.cxp.builder import _copy_tree, build_all, build_repo
 from countersignal.cxp.techniques import get_technique
 
 
@@ -218,3 +218,36 @@ class TestBuildAll:
         content = (repo_dir / "GEMINI.md").read_text()
         assert "{{" not in content
         assert "}}" not in content
+
+
+class TestCopyTree:
+    """Tests for _copy_tree edge cases (binary files, __pycache__)."""
+
+    def test_copy_tree_skips_pycache(self, tmp_path: Path) -> None:
+        """__pycache__ directories should not be copied to the destination."""
+        source = tmp_path / "source"
+        source.mkdir()
+        (source / "hello.txt").write_text("hello", encoding="utf-8")
+        pycache = source / "__pycache__"
+        pycache.mkdir()
+        (pycache / "module.cpython-311.pyc").write_bytes(b"\x00\x01\x02\x03")
+
+        dest = tmp_path / "dest"
+        dest.mkdir()
+        _copy_tree(source, dest)
+
+        assert (dest / "hello.txt").read_text(encoding="utf-8") == "hello"
+        assert not (dest / "__pycache__").exists()
+
+    def test_copy_tree_handles_binary_files(self, tmp_path: Path) -> None:
+        """Non-UTF-8 files should be copied via binary fallback, not crash."""
+        source = tmp_path / "source"
+        source.mkdir()
+        binary_content = bytes(range(256))
+        (source / "data.bin").write_bytes(binary_content)
+
+        dest = tmp_path / "dest"
+        dest.mkdir()
+        _copy_tree(source, dest)
+
+        assert (dest / "data.bin").read_bytes() == binary_content

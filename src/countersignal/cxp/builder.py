@@ -26,9 +26,14 @@ def _copy_tree(source: Traversable, dest: Path) -> None:
         dest: Destination filesystem path.
     """
     for item in source.iterdir():
+        if item.name == "__pycache__" and item.is_dir():
+            continue
         if item.is_file():
             target = dest / item.name
-            target.write_text(item.read_text(encoding="utf-8"), encoding="utf-8")
+            try:
+                target.write_text(item.read_text(encoding="utf-8"), encoding="utf-8")
+            except UnicodeDecodeError:
+                target.write_bytes(item.read_bytes())
         elif item.is_dir():
             subdir = dest / item.name
             subdir.mkdir(parents=True, exist_ok=True)
