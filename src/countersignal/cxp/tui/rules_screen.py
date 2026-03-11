@@ -202,13 +202,17 @@ class RulesScreen(Screen):
             classes="screen-subtitle",
         )
         with VerticalScroll(id="rules-scroll"):
-            for rule in load_catalog():
-                yield self._build_rule_checkbox(rule, selected=False)
-            # Show any freestyle rules already added this session.
-            for rule in self.app.freestyle_rules:  # type: ignore[attr-defined]
-                yield self._build_rule_checkbox(rule, selected=True)
+            for rule, selected in self._display_rules():
+                yield self._build_rule_checkbox(rule, selected=selected)
         yield Static(id="rules-summary", classes="rules-summary")
         yield Footer()
+
+    def _display_rules(self) -> list[tuple[Rule, bool]]:
+        """Return display rules with selected state, collapsed by rule ID."""
+        merged: dict[str, tuple[Rule, bool]] = {rule.id: (rule, False) for rule in load_catalog()}
+        for rule in self.app.freestyle_rules:  # type: ignore[attr-defined]
+            merged[rule.id] = (rule, True)
+        return list(merged.values())
 
     def on_mount(self) -> None:
         """Set initial focus and render current selection summary."""
@@ -223,6 +227,23 @@ class RulesScreen(Screen):
             value=selected,
             id=f"rule-{rule.id}",
         )
+
+    def _find_rule_checkbox(self, rule_id: str) -> Checkbox | None:
+        """Find an existing checkbox for a rule ID."""
+        target_id = f"rule-{rule_id}"
+        for checkbox in self._rule_checkboxes():
+            if checkbox.id == target_id:
+                return checkbox
+        return None
+
+    def _upsert_freestyle_rule(self, rule: Rule) -> None:
+        """Insert or replace a freestyle rule in app state by ID."""
+        freestyle_rules = self.app.freestyle_rules  # type: ignore[attr-defined]
+        for index, existing in enumerate(freestyle_rules):
+            if existing.id == rule.id:
+                freestyle_rules[index] = rule
+                return
+        freestyle_rules.append(rule)
 
     def _rule_checkboxes(self) -> list[Checkbox]:
         """Return all rule checkboxes currently displayed."""
@@ -313,11 +334,16 @@ class RulesScreen(Screen):
 
         def on_dismiss(rule: Rule | None) -> None:
             if rule is not None:
-                self.app.freestyle_rules.append(rule)  # type: ignore[attr-defined]
-                container = self.query_one("#rules-scroll", VerticalScroll)
-                checkbox = self._build_rule_checkbox(rule, selected=True)
-                container.mount(checkbox)
-                self.call_after_refresh(checkbox.focus)
+                self._upsert_freestyle_rule(rule)
+                existing_checkbox = self._find_rule_checkbox(rule.id)
+                if existing_checkbox is not None:
+                    existing_checkbox.value = True
+                    self.call_after_refresh(existing_checkbox.focus)
+                else:
+                    container = self.query_one("#rules-scroll", VerticalScroll)
+                    checkbox = self._build_rule_checkbox(rule, selected=True)
+                    container.mount(checkbox)
+                    self.call_after_refresh(checkbox.focus)
                 self.call_after_refresh(self._update_selection_summary)
 
         self.app.push_screen(FreestyleModal(sections), callback=on_dismiss)
@@ -328,10 +354,13 @@ class RulesScreen(Screen):
         from countersignal.cxp.tui.preview_screen import PreviewScreen
 
         selected: list[Rule] = []
+        seen_rule_ids: set[str] = set()
         for checkbox in self._rule_checkboxes():
             if not checkbox.value or checkbox.id is None:
                 continue
             rule_id = str(checkbox.id).removeprefix("rule-")
+            if rule_id in seen_rule_ids:
+                continue
             # Check catalog first, then freestyle.
             rule = get_rule(rule_id)
             if rule is None:
@@ -341,6 +370,7 @@ class RulesScreen(Screen):
                         break
             if rule is not None:
                 selected.append(rule)
+                seen_rule_ids.add(rule_id)
 
         self.app.selected_rules = selected  # type: ignore[attr-defined]
         self.app.push_screen(PreviewScreen())

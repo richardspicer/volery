@@ -177,6 +177,34 @@ class TestRulesScreen:
             assert isinstance(app.screen, PreviewScreen)
             assert len(app.selected_rules) == 1
 
+    async def test_rules_screen_deduplicates_catalog_and_freestyle_ids(
+        self, tmp_path: Path
+    ) -> None:
+        """Catalog and freestyle duplicates render and proceed only once."""
+        from countersignal.cxp.catalog import load_catalog
+        from countersignal.cxp.formats import list_formats
+
+        app = _make_app(tmp_path)
+        async with app.run_test() as pilot:
+            app.selected_format = list_formats()[0]
+            catalog_rule = load_catalog()[0]
+            app.freestyle_rules = [catalog_rule]
+            app.push_screen(RulesScreen())
+            await pilot.pause()
+
+            from textual.widgets import Checkbox
+
+            checkboxes = list(app.screen.query(Checkbox))
+            matching = [c for c in checkboxes if c.id == f"rule-{catalog_rule.id}"]
+            assert len(matching) == 1
+            assert matching[0].value
+
+            await pilot.press("enter")
+            await pilot.pause()
+
+            rule_ids = [rule.id for rule in app.selected_rules]
+            assert rule_ids.count(catalog_rule.id) == 1
+
     async def test_rules_screen_freestyle_opens(self, tmp_path: Path) -> None:
         """Pressing 'f' opens the freestyle rule entry modal."""
         from countersignal.cxp.formats import list_formats
