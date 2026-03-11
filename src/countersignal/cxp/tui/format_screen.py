@@ -9,7 +9,7 @@ from __future__ import annotations
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.screen import Screen
-from textual.widgets import Footer, Header, Label, OptionList
+from textual.widgets import Footer, Header, Label, OptionList, Static
 from textual.widgets.option_list import Option
 
 from countersignal.cxp.formats import list_formats
@@ -34,11 +34,29 @@ class FormatScreen(Screen):
     def compose(self) -> ComposeResult:
         """Compose the format selection layout."""
         yield Header()
-        yield Label("Select target assistant format:", classes="screen-title")
+        yield Label("Step 1 of 5: Choose Target Format", classes="screen-title")
+        yield Static(
+            "Select the assistant instruction file format to generate.",
+            classes="screen-subtitle",
+        )
         formats = list_formats()
-        options = [Option(f"{fmt.filename:<35} ({fmt.assistant})", id=fmt.id) for fmt in formats]
+        options = [
+            Option(
+                f"{fmt.filename:<30}  {fmt.assistant:<14}  ({fmt.syntax})",
+                id=fmt.id,
+            )
+            for fmt in formats
+        ]
         yield OptionList(*options, id="format-list")
+        yield Static(
+            "Keys: UP/DOWN navigate, Enter select, q quit",
+            classes="screen-help",
+        )
         yield Footer()
+
+    def on_mount(self) -> None:
+        """Focus the format list on entry for immediate keyboard navigation."""
+        self.query_one("#format-list", OptionList).focus()
 
     def action_select_format(self) -> None:
         """Trigger selection on the option list when Enter is pressed outside it."""

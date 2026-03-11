@@ -33,8 +33,23 @@ class CXPApp(App):
     .screen-title {
         text-align: center;
         text-style: bold;
-        padding: 1 0;
+        padding: 1 2 0 2;
         color: $text;
+    }
+    .screen-subtitle {
+        text-align: center;
+        color: $text-muted;
+        padding: 0 2 1 2;
+    }
+    .screen-help {
+        text-align: center;
+        color: $text-muted;
+        padding: 0 2 1 2;
+    }
+    .rules-summary {
+        text-style: bold;
+        color: $text-muted;
+        padding: 1 2 0 2;
     }
     .severity-high {
         color: red;
@@ -74,16 +89,21 @@ class CXPApp(App):
         padding: 0 2;
     }
     OptionList {
-        margin: 1 2;
+        margin: 0 2;
         height: 1fr;
+        border: round $primary;
     }
     #rules-scroll {
-        margin: 1 2;
+        margin: 0 2;
         height: 1fr;
+        border: round $primary;
+        padding: 0 1;
     }
-    #btn-continue {
-        margin: 1 2;
-        width: auto;
+    #rules-scroll Checkbox {
+        padding: 0 1;
+    }
+    #rules-scroll Checkbox:focus {
+        background: $boost;
     }
     #preview-scroll {
         margin: 1 2;

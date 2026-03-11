@@ -74,8 +74,10 @@ class TestFormatScreen:
             from textual.widgets import OptionList
 
             option_list = app.screen.query_one(OptionList)
-            # Select the first format
-            option_list.action_select()
+            option_list.focus()
+            await pilot.pause()
+
+            await pilot.press("enter")
             await pilot.pause()
             assert isinstance(app.screen, RulesScreen)
             assert app.selected_format is not None
@@ -120,6 +122,59 @@ class TestRulesScreen:
             first.focus()
             await pilot.press("space")
             assert first.value
+
+    async def test_rules_screen_arrow_navigation(self, tmp_path: Path) -> None:
+        """Arrow keys move focus between rules."""
+        from countersignal.cxp.formats import list_formats
+
+        app = _make_app(tmp_path)
+        async with app.run_test() as pilot:
+            app.selected_format = list_formats()[0]
+            app.push_screen(RulesScreen())
+            await pilot.pause()
+
+            from textual.widgets import Checkbox
+
+            checkboxes = list(app.screen.query(Checkbox))
+            assert len(checkboxes) > 1
+            first = checkboxes[0]
+            second = checkboxes[1]
+            first.focus()
+            await pilot.pause()
+
+            await pilot.press("down")
+            await pilot.pause()
+            assert app.screen.focused is second
+
+            await pilot.press("up")
+            await pilot.pause()
+            assert app.screen.focused is first
+
+    async def test_rules_screen_enter_advances(self, tmp_path: Path) -> None:
+        """Enter advances to preview with current selections."""
+        from countersignal.cxp.formats import list_formats
+
+        app = _make_app(tmp_path)
+        async with app.run_test() as pilot:
+            app.selected_format = list_formats()[0]
+            app.push_screen(RulesScreen())
+            await pilot.pause()
+
+            from textual.widgets import Checkbox
+
+            checkboxes = list(app.screen.query(Checkbox))
+            first = checkboxes[0]
+            assert not first.value
+            first.focus()
+            await pilot.pause()
+
+            await pilot.press("space")
+            await pilot.pause()
+            await pilot.press("enter")
+            await pilot.pause()
+
+            assert isinstance(app.screen, PreviewScreen)
+            assert len(app.selected_rules) == 1
 
     async def test_rules_screen_freestyle_opens(self, tmp_path: Path) -> None:
         """Pressing 'f' opens the freestyle rule entry modal."""
