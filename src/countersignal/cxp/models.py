@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from enum import StrEnum
+from pathlib import Path
 
 
 class PayloadMode(StrEnum):
@@ -92,6 +93,8 @@ class TestResult:
         validation_result: "hit", "miss", "partial", or "error".
         validation_details: What the validator found.
         notes: Researcher observations.
+        rules_inserted: Comma-separated rule IDs (v0.2+, empty for legacy results).
+        format_id: Which format was used (v0.2+, empty for legacy results).
     """
 
     id: str
@@ -107,6 +110,8 @@ class TestResult:
     validation_result: str
     validation_details: str
     notes: str
+    rules_inserted: str = ""
+    format_id: str = ""
 
 
 @dataclass
@@ -170,6 +175,27 @@ class Rule:
     section: str
     trigger_prompts: list[str]
     validators: list[str]
+
+
+@dataclass
+class BuildResult:
+    """Result of a CXP build operation.
+
+    Attributes:
+        repo_dir: Path to the generated repo directory.
+        context_file: Path to the assembled context file.
+        rules_inserted: List of rule IDs that were inserted.
+        format_id: Format that was used.
+        prompt_reference_path: Path to the prompt reference file.
+        manifest_path: Path to the manifest file.
+    """
+
+    repo_dir: Path
+    context_file: Path
+    rules_inserted: list[str]
+    format_id: str
+    prompt_reference_path: Path
+    manifest_path: Path
 
 
 @dataclass

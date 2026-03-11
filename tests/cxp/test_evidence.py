@@ -194,3 +194,122 @@ class TestUpdateValidation:
         init_db(conn)
         # Should not raise — just a no-op UPDATE matching 0 rows
         update_validation(conn, "nonexistent-id", "miss", "")
+
+
+class TestSchemaV2Migration:
+    """Tests for v2 schema migration (rules_inserted, format_id columns)."""
+
+    def test_new_columns_exist(self) -> None:
+        """Fresh database should have rules_inserted and format_id columns."""
+        conn = sqlite3.connect(":memory:")
+        init_db(conn)
+        cursor = conn.execute("PRAGMA table_info(test_results)")
+        columns = {row[1] for row in cursor.fetchall()}
+        assert "rules_inserted" in columns
+        assert "format_id" in columns
+        conn.close()
+
+    def test_record_result_with_new_columns(self) -> None:
+        """record_result should accept and store rules_inserted and format_id."""
+        conn = sqlite3.connect(":memory:")
+        init_db(conn)
+        campaign = create_campaign(conn, "test")
+        result = record_result(
+            conn,
+            campaign_id=campaign.id,
+            technique_id="t1",
+            assistant="Cursor",
+            trigger_prompt="test prompt",
+            raw_output="output",
+            capture_mode="file",
+            rules_inserted="weak-crypto-md5,hardcoded-secrets",
+            format_id="cursorrules",
+        )
+        assert result.rules_inserted == "weak-crypto-md5,hardcoded-secrets"
+        assert result.format_id == "cursorrules"
+        fetched = get_result(conn, result.id)
+        assert fetched is not None
+        assert fetched.rules_inserted == "weak-crypto-md5,hardcoded-secrets"
+        assert fetched.format_id == "cursorrules"
+        conn.close()
+
+    def test_legacy_result_has_empty_new_columns(self) -> None:
+        """Results recorded without new columns should default to empty string."""
+        conn = sqlite3.connect(":memory:")
+        init_db(conn)
+        campaign = create_campaign(conn, "test")
+        result = record_result(
+            conn,
+            campaign_id=campaign.id,
+            technique_id="t1",
+            assistant="a",
+            trigger_prompt="p",
+            raw_output="o",
+            capture_mode="file",
+        )
+        assert result.rules_inserted == ""
+        assert result.format_id == ""
+        conn.close()
+
+    def test_migrate_v1_to_v2(self) -> None:
+        """Simulates a v1 database being migrated to v2."""
+        conn = sqlite3.connect(":memory:")
+        # Create v1 schema manually (without new columns)
+        conn.executescript("""\
+            CREATE TABLE campaigns (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                created TEXT NOT NULL,
+                description TEXT
+            );
+            CREATE TABLE test_results (
+                id TEXT PRIMARY KEY,
+                campaign_id TEXT NOT NULL REFERENCES campaigns(id),
+                technique_id TEXT NOT NULL,
+                assistant TEXT NOT NULL,
+                model TEXT,
+                timestamp TEXT NOT NULL,
+                trigger_prompt TEXT NOT NULL,
+                capture_mode TEXT NOT NULL,
+                captured_files TEXT,
+                raw_output TEXT NOT NULL,
+                validation_result TEXT NOT NULL DEFAULT 'pending',
+                validation_details TEXT,
+                notes TEXT
+            );
+        """)
+        # Insert a v1 record
+        conn.execute(
+            "INSERT INTO campaigns (id, name, created) VALUES ('c1', 'test', '2026-01-01T00:00:00')"
+        )
+        conn.execute(
+            """INSERT INTO test_results
+               (id, campaign_id, technique_id, assistant, model, timestamp,
+                trigger_prompt, capture_mode, raw_output, validation_result)
+               VALUES ('r1', 'c1', 't1', 'a', '', '2026-01-01T00:00:00',
+                       'p', 'file', 'o', 'pending')"""
+        )
+        conn.commit()
+
+        # Run init_db — should migrate
+        init_db(conn)
+
+        # Verify new columns exist
+        cursor = conn.execute("PRAGMA table_info(test_results)")
+        columns = {row[1] for row in cursor.fetchall()}
+        assert "rules_inserted" in columns
+        assert "format_id" in columns
+
+        # Verify old data is preserved with NULL new columns
+        row = conn.execute("SELECT * FROM test_results WHERE id = 'r1'").fetchone()
+        assert row is not None
+        assert row[2] == "t1"  # technique_id preserved
+        conn.close()
+
+    def test_schema_version_set(self) -> None:
+        """user_version should be set after init_db."""
+        conn = sqlite3.connect(":memory:")
+        init_db(conn)
+        version = conn.execute("PRAGMA user_version").fetchone()[0]
+        assert version == 2
+        conn.close()

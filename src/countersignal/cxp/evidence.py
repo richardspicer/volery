@@ -12,6 +12,9 @@ from countersignal.cxp.models import Campaign, TestResult
 
 _DEFAULT_DB_PATH = Path.home() / ".countersignal" / "cxp.db"
 
+# Current schema version. Increment when adding migrations.
+_SCHEMA_VERSION = 2
+
 _SCHEMA = """\
 CREATE TABLE IF NOT EXISTS campaigns (
     id TEXT PRIMARY KEY,
@@ -33,7 +36,9 @@ CREATE TABLE IF NOT EXISTS test_results (
     raw_output TEXT NOT NULL,
     validation_result TEXT NOT NULL DEFAULT 'pending',
     validation_details TEXT,
-    notes TEXT
+    notes TEXT,
+    rules_inserted TEXT,
+    format_id TEXT
 );
 """
 
@@ -56,12 +61,40 @@ def get_db(db_path: Path | None = None) -> sqlite3.Connection:
 
 
 def init_db(conn: sqlite3.Connection) -> None:
-    """Create tables if they don't exist.
+    """Create tables if they don't exist, and run migrations.
+
+    Uses ``PRAGMA user_version`` to track schema version. New databases get
+    the latest schema directly. Existing databases are migrated incrementally.
 
     Args:
         conn: An open SQLite connection.
     """
-    conn.executescript(_SCHEMA)
+    version = conn.execute("PRAGMA user_version").fetchone()[0]
+
+    if version == 0:
+        # Fresh database or pre-versioned database — create/update tables.
+        conn.executescript(_SCHEMA)
+        # Check if this is an existing v1 database that needs migration.
+        cursor = conn.execute("PRAGMA table_info(test_results)")
+        columns = {row[1] for row in cursor.fetchall()}
+        if columns and "rules_inserted" not in columns:
+            _migrate_v1_to_v2(conn)
+    elif version < _SCHEMA_VERSION:
+        if version < 2:
+            _migrate_v1_to_v2(conn)
+
+    conn.execute(f"PRAGMA user_version = {_SCHEMA_VERSION}")
+    conn.commit()
+
+
+def _migrate_v1_to_v2(conn: sqlite3.Connection) -> None:
+    """Migrate schema from v1 to v2: add rules_inserted and format_id columns.
+
+    Args:
+        conn: An open SQLite connection.
+    """
+    conn.execute("ALTER TABLE test_results ADD COLUMN rules_inserted TEXT")
+    conn.execute("ALTER TABLE test_results ADD COLUMN format_id TEXT")
 
 
 def _row_to_campaign(row: tuple) -> Campaign:  # type: ignore[type-arg]
@@ -90,6 +123,8 @@ def _row_to_result(row: tuple) -> TestResult:  # type: ignore[type-arg]
         validation_result=row[10],
         validation_details=row[11] or "",
         notes=row[12] or "",
+        rules_inserted=row[13] or "" if len(row) > 13 else "",
+        format_id=row[14] or "" if len(row) > 14 else "",
     )
 
 
@@ -160,6 +195,8 @@ def record_result(
     validation_result: str = "pending",
     validation_details: str = "",
     notes: str = "",
+    rules_inserted: str = "",
+    format_id: str = "",
 ) -> TestResult:
     """Record a test result.
 
@@ -176,6 +213,8 @@ def record_result(
         validation_result: Validation status (default "pending").
         validation_details: What the validator found.
         notes: Researcher observations.
+        rules_inserted: Comma-separated rule IDs (v0.2+).
+        format_id: Which format was used (v0.2+).
 
     Returns:
         The created TestResult.
@@ -187,8 +226,9 @@ def record_result(
         """INSERT INTO test_results
            (id, campaign_id, technique_id, assistant, model, timestamp,
             trigger_prompt, capture_mode, captured_files, raw_output,
-            validation_result, validation_details, notes)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            validation_result, validation_details, notes,
+            rules_inserted, format_id)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (
             result_id,
             campaign_id,
@@ -203,6 +243,8 @@ def record_result(
             validation_result,
             validation_details,
             notes,
+            rules_inserted or None,
+            format_id or None,
         ),
     )
     conn.commit()
@@ -220,6 +262,8 @@ def record_result(
         validation_result=validation_result,
         validation_details=validation_details,
         notes=notes,
+        rules_inserted=rules_inserted,
+        format_id=format_id,
     )
 
 
