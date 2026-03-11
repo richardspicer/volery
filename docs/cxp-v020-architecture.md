@@ -262,6 +262,7 @@ class BuildResult:
     repo_dir: Path
     context_file: Path
     rules_inserted: list[str]       # rule IDs
+    format_id: str
     prompt_reference_path: Path
     manifest_path: Path
 ```
