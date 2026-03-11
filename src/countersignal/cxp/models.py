@@ -146,6 +146,33 @@ class ValidationResult:
 
 
 @dataclass
+class Rule:
+    """An insecure coding rule for context file poisoning.
+
+    Attributes:
+        id: Unique rule identifier (e.g., "weak-crypto-md5").
+        name: Human-readable name.
+        category: Rule category (e.g., "weak-crypto", "hardcoded-secrets").
+        severity: Impact severity ("high", "medium", "low").
+        description: What this rule produces when followed.
+        content: Rule text keyed by syntax type ("markdown", "plaintext").
+        section: Target section ID in the base template.
+        trigger_prompts: Suggested prompts that exercise this rule.
+        validators: Validator rule IDs that detect compliance.
+    """
+
+    id: str
+    name: str
+    category: str
+    severity: str
+    description: str
+    content: dict[str, str]
+    section: str
+    trigger_prompts: list[str]
+    validators: list[str]
+
+
+@dataclass
 class Campaign:
     """A testing session grouping multiple test results.
 
