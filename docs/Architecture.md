@@ -24,11 +24,29 @@ src/countersignal/
 │   └── templates/            # Jinja2 templates for dashboard
 ├── cxp/                      # Context file poisoning module
 │   ├── cli.py                # objectives, formats, techniques, generate, validate, record, campaigns, report
-│   ├── models.py             # Objective, AssistantFormat, Technique, etc. (dataclasses)
+│   ├── models.py             # Objective, AssistantFormat, Technique, Rule, BuildResult (dataclasses)
 │   ├── builder.py            # Test repository generator
+│   ├── catalog.py            # Rule catalog loader (built-in + user rules)
+│   ├── base_loader.py        # Base template loading, rule insertion, marker stripping
 │   ├── evidence.py           # SQLite evidence store (~/.countersignal/cxp.db)
 │   ├── validator.py          # Output validation against detection rules
 │   ├── reporter.py           # Comparison matrix and PoC package generation
+│   ├── bases/                # Clean base templates (one per format, with section markers)
+│   │   ├── cursorrules.txt   # .cursorrules (Cursor) — plaintext
+│   │   ├── claude-md.md      # CLAUDE.md (Claude Code) — markdown
+│   │   ├── copilot-instructions.md  # copilot-instructions.md (GitHub Copilot) — markdown
+│   │   ├── agents-md.md      # AGENTS.md (Codex CLI) — markdown
+│   │   ├── gemini-md.md      # GEMINI.md (Gemini CLI) — markdown
+│   │   └── windsurfrules.txt # .windsurfrules (Windsurf) — plaintext
+│   ├── rules/                # Built-in insecure coding rule definitions (YAML)
+│   │   ├── weak-crypto-md5.yaml
+│   │   ├── hardcoded-secrets.yaml
+│   │   ├── no-csrf.yaml
+│   │   ├── shell-true.yaml
+│   │   ├── stack-traces.yaml
+│   │   ├── extra-index-url.yaml
+│   │   ├── insecure-perms.yaml
+│   │   └── outbound-exfil.yaml
 │   ├── formats/              # Assistant format definitions
 │   │   ├── agents_md.py      # AGENTS.md (Gemini CLI)
 │   │   ├── claude_md.py      # CLAUDE.md (Claude Code)
