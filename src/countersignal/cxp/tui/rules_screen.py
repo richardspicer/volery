@@ -210,6 +210,10 @@ class RulesScreen(Screen):
         yield Button("Continue", variant="primary", id="btn-continue")
         yield Footer()
 
+    def on_mount(self) -> None:
+        """Remove Continue button from tab focus chain."""
+        self.query_one("#btn-continue", Button).can_focus = False
+
     def action_toggle_focused(self) -> None:
         """No-op — Checkbox handles Space when focused. Shown in Footer only."""
 
