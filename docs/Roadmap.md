@@ -31,6 +31,10 @@ Three tools targeting three content-based attack surfaces: document ingestion �
 - 18 models tested across Ollama, Groq, and OpenRouter
 - Key finding: reasoning models use chain-of-thought to organize compliance, not resist injection
 
+### Multi-Model Testing
+
+IPI campaigns can target multiple models and report per-model callback results in the existing campaign format. Same payload, same platform, different model backend — the callback tracker already distinguishes which configuration produced a hit. This replaces the need for a separate cross-model comparison tool.
+
 ## CXP — Context File Poisoning
 
 CXP tests whether poisoned project-level instruction files cause coding assistants to produce vulnerable code, exfiltrate data, or execute commands. Completely unoccupied niche — academic research catalogs 42 attack techniques but no packaged testing tool exists.
